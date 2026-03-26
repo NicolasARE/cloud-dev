@@ -7,7 +7,11 @@ jest.mock('../../src/persistence', () => ({
     getItem: jest.fn(),
 }));
 
-test('it removes item correctly', async () => {
+beforeEach(() => {
+    jest.clearAllMocks();
+});
+
+test('il supprime l\'élément correctement', async () => {
     const req = { params: { id: 12345 } };
     const res = { sendStatus: jest.fn() };
 
