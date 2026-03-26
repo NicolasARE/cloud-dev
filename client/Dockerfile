@@ -1,17 +1,17 @@
-FROM node:22
+FROM node:22 AS build
 
-WORKDIR /usr/local/app
+WORKDIR /app
 
-# Installer dépendances (cache optimisé)
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci
 
-# Donner les droits à l'utilisateur node
-RUN chown -R node:node /usr/local/app
+COPY . .
+RUN npm run build
 
-# Switch utilisateur
-USER node
+FROM nginx:alpine
 
-# Code monté via watch
+RUN rm -rf /usr/share/nginx/html/*
 
-CMD ["npm", "run", "dev"]
+COPY --from=build /app/dist /usr/share/nginx/html
+
+CMD ["nginx", "-g", "daemon off;"]

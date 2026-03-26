@@ -1,0 +1,15 @@
+FROM node:22
+
+WORKDIR /usr/local/app
+
+# Installer dépendances
+COPY package.json package-lock.json ./
+RUN npm install
+
+RUN chown -R node:node /usr/local/app
+
+USER node
+
+# Code monté via watch
+
+CMD ["npm", "run", "dev"]

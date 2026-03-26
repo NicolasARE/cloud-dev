@@ -68,13 +68,21 @@ services:
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile.dev
     env_file:
       - .env
     depends_on:
       mysql:
         condition: service_healthy
+    develop:
+      watch:
+        - path: ./backend/src
+          action: sync
+          target: /usr/local/app/src
+        - path: ./backend/package.json
+          action: rebuild
     labels:
-      traefik.http.routers.backend.rule: PathPrefix(`/api`)
+      traefik.http.routers.backend.rule: Host(`localhost`) && PathPrefix(`/api`)
       traefik.http.services.backend.loadbalancer.server.port: 3000
 
   ###################################################
@@ -95,6 +103,14 @@ services:
   client:
     build:
       context: ./client
+      dockerfile: Dockerfile.dev
+    develop:
+      watch:
+        - path: ./client/src
+          action: sync
+          target: /usr/local/app/src
+        - path: ./client/package.json
+          action: rebuild
     labels:
       traefik.http.routers.client.rule: Host(`localhost`)
       traefik.http.services.client.loadbalancer.server.port: 5173
@@ -128,6 +144,28 @@ services:
       timeout: 5s
       retries: 5
 
+  ###################################################
+  # Service: phpmyadmin
+  #
+  # This service provides a web interface to the MySQL database. It's useful
+  # for debugging and troubleshooting data, schemas, and more. The image for 
+  # this service comes directly from Docker Hub and is a Docker Official Image.
+  #
+  # The environment variables configure the connection to the database and 
+  # provide the default credentials, letting us immediately open the interface
+  # without needing to log in.
+  #
+  # The labels are used to configure Traefik (the reverse proxy) with the
+  # routing rules. In this case, all requests to db.localhost will be forwarded
+  # to this service's port 80.
+  ###################################################
+  phpmyadmin:
+    image: phpmyadmin
+    env_file:
+      - .env
+    labels:
+      traefik.http.routers.phpmyadmin.rule: Host(`db.localhost`)
+      traefik.http.services.phpmyadmin.loadbalancer.server.port: 80
 
 ###################################################
 # Volumes

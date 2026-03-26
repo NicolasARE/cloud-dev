@@ -1,15 +1,23 @@
-FROM node:22
+FROM node:22 AS build
 
-WORKDIR /usr/local/app
+WORKDIR /app
 
-# Installer dépendances
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci --omit=dev
 
-RUN chown -R node:node /usr/local/app
+COPY . .
 
+FROM node:22-alpine
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/src ./src
+COPY --from=build /app/package.json ./
+
+RUN chown -R node:node /app
 USER node
 
-# Code monté via watch
-
-CMD ["npm", "run", "dev"]
+CMD ["node", "src/index.js"]
