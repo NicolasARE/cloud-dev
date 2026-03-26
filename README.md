@@ -52,5 +52,5 @@ resolve `*.localhost` correctly, so no hosts file changes should be required).
 When you're done, simply remove the containers by running the following command:
 
 ```
-docker compose down 
+docker compose down
 ```
