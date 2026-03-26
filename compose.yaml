@@ -67,13 +67,10 @@ services:
   ###################################################
   backend:
     build:
-      context: ./
+      context: ./backend
       target: backend-dev
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_USER: root
-      MYSQL_PASSWORD: secret
-      MYSQL_DB: todos
+    env_file:
+      - .env
     depends_on:
       mysql:
         condition: service_healthy
@@ -105,7 +102,7 @@ services:
   ###################################################
   client:
     build:
-      context: ./
+      context: ./client
       target: client-dev
     develop:
       watch:
@@ -139,9 +136,8 @@ services:
     image: mysql:9.3
     volumes:
       - todo-mysql-data:/var/lib/mysql
-    environment: 
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: todos
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
@@ -165,10 +161,8 @@ services:
   ###################################################
   phpmyadmin:
     image: phpmyadmin
-    environment:
-      PMA_HOST: mysql
-      PMA_USER: root
-      PMA_PASSWORD: secret
+    env_file:
+      - .env
     labels:
       traefik.http.routers.phpmyadmin.rule: Host(`db.localhost`)
       traefik.http.services.phpmyadmin.loadbalancer.server.port: 80
