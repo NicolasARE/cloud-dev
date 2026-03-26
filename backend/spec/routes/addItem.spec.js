@@ -11,9 +11,13 @@ jest.mock('../../src/persistence', () => ({
     getItem: jest.fn(),
 }));
 
-test('it stores item correctly', async () => {
+beforeEach(() => {
+    jest.clearAllMocks();
+});
+
+test('il stocke l\'élément correctement', async () => {
     const id = 'something-not-a-uuid';
-    const name = 'A sample item';
+    const name = 'Un élément d\'exemple';
     const req = { body: { name } };
     const res = { send: jest.fn() };
 
@@ -27,4 +31,26 @@ test('it stores item correctly', async () => {
     expect(db.storeItem.mock.calls[0][0]).toEqual(expectedItem);
     expect(res.send.mock.calls[0].length).toBe(1);
     expect(res.send.mock.calls[0][0]).toEqual(expectedItem);
+});
+
+test('il retourne 400 quand le nom est manquant', async () => {
+    const req = { body: {} };
+    const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+    await addItem(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.send).toHaveBeenCalledWith('Le nom est requis');
+    expect(db.storeItem).not.toHaveBeenCalled();
+});
+
+test('il retourne 400 quand le nom est vide', async () => {
+    const req = { body: { name: '   ' } };
+    const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+    await addItem(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.send).toHaveBeenCalledWith('Le nom est requis');
+    expect(db.storeItem).not.toHaveBeenCalled();
 });

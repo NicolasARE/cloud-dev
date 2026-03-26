@@ -6,7 +6,11 @@ jest.mock('../../src/persistence', () => ({
     getItems: jest.fn(),
 }));
 
-test('it gets items correctly', async () => {
+beforeEach(() => {
+    jest.clearAllMocks();
+});
+
+test('il récupère les éléments correctement', async () => {
     const req = {};
     const res = { send: jest.fn() };
     db.getItems.mockReturnValue(Promise.resolve(ITEMS));
