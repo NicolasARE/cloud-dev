@@ -37,6 +37,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
     "prettier": "^3.2.4",
@@ -50,17 +51,13 @@
     "singleQuote": true
   },
   "jest": {
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "\\.(css|scss)$": "identity-obj-proxy"
+    },
     "testEnvironment": "jsdom",
     "transform": {
-      "^.+\\.[jt]sx?$": [
-        "babel-jest",
-        {
-          "configFile": "./babel.config.js"
-        }
-      ]
-    },
-    "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1"
+      "^.+\\.[jt]sx?$": "babel-jest"
     }
   }
 }
