@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  client:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install deps
+        run: |
+          cd client
+          npm install
+
+      - name: Lint
+        run: |
+          cd client
+          npm run lint
+
+      - name: Build
+        run: |
+          cd client
+          npm run build
+
+      - name: Unit tests
+        run: |
+          cd client
+          npm test tests/unit
+
+
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install deps
+        run: |
+          cd backend
+          npm install
+
+      - name: Build
+        run: |
+          cd backend
+          npm run build
+
+      - name: Unit tests
+        run: |
+          cd backend
+          npm test
