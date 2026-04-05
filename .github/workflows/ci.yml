@@ -14,11 +14,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Cache client deps
+        uses: actions/cache@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          path: client/node_modules
+          key: client-${{ hashFiles('client/package-lock.json') }}
 
       - name: Install deps
         run: |
@@ -48,11 +48,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Cache backend deps
+        uses: actions/cache@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          path: backend/node_modules
+          key: backend-${{ hashFiles('backend/package-lock.json') }}
 
       - name: Install deps
         run: |
