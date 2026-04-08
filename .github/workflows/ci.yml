@@ -9,6 +9,8 @@ on:
 jobs:
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     outputs:
       client: ${{ steps.filter.outputs.client }}
       backend: ${{ steps.filter.outputs.backend }}
