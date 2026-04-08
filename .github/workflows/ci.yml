@@ -7,7 +7,27 @@ on:
     branches: ["*"]
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      client: ${{ steps.filter.outputs.client }}
+      backend: ${{ steps.filter.outputs.backend }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            client:
+              - 'client/**'
+            backend:
+              - 'backend/**'
+
   client:
+    needs: changes
+    if: needs.changes.outputs.client == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -42,6 +62,8 @@ jobs:
 
 
   backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
 
     steps:
