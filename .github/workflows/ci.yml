@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  push:
+    branches: ["*"]
+  pull_request_target:
+    branches: ["*"]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      client: ${{ steps.filter.outputs.client }}
+      backend: ${{ steps.filter.outputs.backend }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            client:
+              - 'client/**'
+            backend:
+              - 'backend/**'
+
+  client:
+    needs: changes
+    if: needs.changes.outputs.client == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Cache client deps
+        uses: actions/cache@v3
+        with:
+          path: client/node_modules
+          key: client-${{ hashFiles('client/package-lock.json') }}
+
+      - name: Install deps
+        run: |
+          cd client
+          npm install
+
+      - name: Lint
+        run: |
+          cd client
+          npm run lint
+
+      - name: Build
+        run: |
+          cd client
+          npm run build
+
+      - name: Unit tests
+        run: |
+          cd client
+          npm test tests/unit
+
+      - name: Integration tests
+        if: github.event_name == 'pull_request' 
+        run: |
+          cd client
+          npm run test tests/integrations
+
+
+  backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Cache backend deps
+        uses: actions/cache@v3
+        with:
+          path: backend/node_modules
+          key: backend-${{ hashFiles('backend/package-lock.json') }}
+
+      - name: Install deps
+        run: |
+          cd backend
+          npm install
+
+      # - name: Build
+      #   run: |
+      #     cd backend
+      #     npm run build
+
+      - name: Unit tests
+        run: |
+          cd backend
+          npm test
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: [client, backend]
+
+    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./client
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/frontend:latest
+
+      - name: Build & push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/backend:latest
