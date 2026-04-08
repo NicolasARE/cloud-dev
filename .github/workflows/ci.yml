@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: ["*"]
-  pull_request:
+  pull_request_target:
     branches: ["*"]
 
 jobs:
@@ -24,6 +24,7 @@ jobs:
               - 'client/**'
             backend:
               - 'backend/**'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   client:
     needs: changes
