@@ -60,6 +60,12 @@ jobs:
           cd client
           npm test tests/unit
 
+      - name: Integration tests
+        if: github.event_name == 'pull_request' 
+        run: |
+          cd client
+          npm run test tests/integrations
+
 
   backend:
     needs: changes
