@@ -10,6 +10,7 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: read
     outputs:
       client: ${{ steps.filter.outputs.client }}
@@ -28,7 +29,7 @@ jobs:
               - 'client/**'
             backend:
               - 'backend/**'
-            token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   client:
     needs: changes
