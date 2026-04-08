@@ -118,14 +118,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & push frontend
+      - name: Build & push client
         uses: docker/build-push-action@v5
         with:
           context: ./client
           push: true
           tags: |
-            ghcr.io/${{ toLower(github.repository_owner) }}/frontend:${{ github.sha }}
-            ghcr.io/${{ toLower(github.repository_owner) }}/frontend:latest
+            ghcr.io/nicolasare/cloud-dev/client:${{ github.sha }}
+            ghcr.io/nicolasare/cloud-dev/client:latest
 
       - name: Build & push backend
         uses: docker/build-push-action@v5
@@ -133,5 +133,5 @@ jobs:
           context: ./backend
           push: true
           tags: |
-            ghcr.io/${{ toLower(github.repository_owner) }}/backend:${{ github.sha }}
-            ghcr.io/${{ toLower(github.repository_owner) }}/backend:latest
+            ghcr.io/nicolasare/cloud-dev/backend:${{ github.sha }}
+            ghcr.io/nicolasare/cloud-dev/backend:latest
