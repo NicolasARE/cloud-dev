@@ -28,7 +28,7 @@ jobs:
               - 'client/**'
             backend:
               - 'backend/**'
-            base: ${{ github.event.pull_request.base.sha || github.event.before }}
+            token: ${{ secrets.GITHUB_TOKEN }}
 
   client:
     needs: changes
