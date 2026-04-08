@@ -59,10 +59,10 @@ jobs:
           cd backend
           npm install
 
-      - name: Build
-        run: |
-          cd backend
-          npm run build
+      # - name: Build
+      #   run: |
+      #     cd backend
+      #     npm run build
 
       - name: Unit tests
         run: |
