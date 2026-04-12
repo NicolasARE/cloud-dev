@@ -97,7 +97,7 @@ services:
       context: ./client
     labels:
       traefik.http.routers.client.rule: Host(`localhost`)
-      traefik.http.services.client.loadbalancer.server.port: 5173
+      traefik.http.services.client.loadbalancer.server.port: 80
 
 
   ###################################################
