@@ -54,3 +54,28 @@ When you're done, simply remove the containers by running the following command:
 ```
 docker compose down
 ```
+
+# Lancer le Projet
+
+## Mode Dev
+(pas besoin de relancer les container pour voir les changements)
+```
+docker compose -f compose.dev.yaml up --watch
+```
+
+## Mode Prod
+```
+docker-compose up
+```
+
+# Supprimer les containers
+
+## Mode Dev
+```
+docker compose -f compose.dev.yaml down
+```
+
+## Mode Prod
+```
+docker compose down
+```
