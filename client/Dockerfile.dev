@@ -6,6 +6,8 @@ WORKDIR /usr/local/app
 COPY package.json package-lock.json ./
 RUN npm install
 
+COPY . .
+
 # Donner les droits à l'utilisateur node
 RUN chown -R node:node /usr/local/app
 

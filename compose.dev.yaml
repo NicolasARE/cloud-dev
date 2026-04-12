@@ -37,7 +37,7 @@ services:
   #
   # We also expose port 80 to connect to the proxy from the host machine.
   ###################################################
-  proxy:
+  proxy-dev:
     image: traefik:v3.6
     command: --providers.docker
     ports:
@@ -65,7 +65,7 @@ services:
   # the appropriate routing rules. In this case, all requests to localhost/api/*
   # will be forwarded to this service's port 3000. 
   ###################################################
-  backend:
+  backend-dev:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
@@ -100,7 +100,7 @@ services:
   # appropriate routing rules. In this case, all requests to localhost will be
   # forwarded to this service's port 5173.
   ###################################################
-  client:
+  client-dev:
     build:
       context: ./client
       dockerfile: Dockerfile.dev
