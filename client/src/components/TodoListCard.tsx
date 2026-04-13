@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AddItemForm } from './AddNewItemForm';
 import { ItemDisplay } from './ItemDisplay';
+import { TodoItem } from '../models/Item.model';
 
 export function TodoListCard() {
-    const [items, setItems] = useState(null);
+    const [items, setItems] = useState<TodoItem[] | null>(null);
 
     useEffect(() => {
         fetch('/api/items')
@@ -12,28 +13,34 @@ export function TodoListCard() {
     }, []);
 
     const onNewItem = useCallback(
-        (newItem) => {
-            setItems([...items, newItem]);
+        (newItem: TodoItem) => {
+            if (items) {
+                setItems([...items, newItem]);
+            }
         },
         [items],
     );
 
     const onItemUpdate = useCallback(
-        (item) => {
-            const index = items.findIndex((i) => i.id === item.id);
-            setItems([
-                ...items.slice(0, index),
-                item,
-                ...items.slice(index + 1),
-            ]);
+        (item: TodoItem) => {
+            if (items) {
+                const index = items.findIndex((i) => i.id === item.id);
+                setItems([
+                    ...items.slice(0, index),
+                    item,
+                    ...items.slice(index + 1),
+                ]);
+            }
         },
         [items],
     );
 
     const onItemRemoval = useCallback(
-        (item) => {
-            const index = items.findIndex((i) => i.id === item.id);
-            setItems([...items.slice(0, index), ...items.slice(index + 1)]);
+        (item: TodoItem) => {
+            if (items) {
+                const index = items.findIndex((i) => i.id === item.id);
+                setItems([...items.slice(0, index), ...items.slice(index + 1)]);
+            }
         },
         [items],
     );

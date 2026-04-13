@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -7,16 +6,26 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons/faCheckSquare';
 import { faSquare } from '@fortawesome/free-regular-svg-icons/faSquare';
+import { TodoItem } from '../models/Item.model';
+import { UpdateItemDto } from '../dtos/Item.dtos';
 import './ItemDisplay.scss';
 
-export function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
+interface ItemDisplayProps {
+    item: TodoItem;
+    onItemUpdate: (item: TodoItem) => void;
+    onItemRemoval: (item: TodoItem) => void;
+}
+
+export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps) {
     const toggleCompletion = () => {
+        const updateDto: UpdateItemDto = {
+            name: item.name,
+            completed: !item.completed,
+        };
+
         fetch(`/api/items/${item.id}`, {
             method: 'PUT',
-            body: JSON.stringify({
-                name: item.name,
-                completed: !item.completed,
-            }),
+            body: JSON.stringify(updateDto),
             headers: { 'Content-Type': 'application/json' },
         })
             .then((r) => r.json())
@@ -47,11 +56,6 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
                         <FontAwesomeIcon
                             icon={item.completed ? faCheckSquare : faSquare}
                         />
-                        <i
-                            className={`far ${
-                                item.completed ? 'fa-check-square' : 'fa-square'
-                            }`}
-                        />
                     </Button>
                 </Col>
                 <Col xs={8} className="name">
@@ -74,13 +78,3 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
         </Container>
     );
 }
-
-ItemDisplay.propTypes = {
-    item: PropTypes.shape({
-        id: PropTypes.string,
-        name: PropTypes.string,
-        completed: PropTypes.bool,
-    }),
-    onItemUpdate: PropTypes.func,
-    onItemRemoval: PropTypes.func,
-};
