@@ -5,8 +5,8 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
-import faCheckSquare from '@fortawesome/fontawesome-free-regular/faCheckSquare';
-import faSquare from '@fortawesome/fontawesome-free-regular/faSquare';
+import { faCheckSquare } from '@fortawesome/free-regular-svg-icons/faCheckSquare';
+import { faSquare } from '@fortawesome/free-regular-svg-icons/faSquare';
 import './ItemDisplay.scss';
 
 export function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
