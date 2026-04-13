@@ -1,17 +1,19 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.ts",
+  "type": "module",
   "scripts": {
-    "format": "prettier -l --write \"**/*.js\"",
-    "format-check": "prettier --check \"**/*.js\"",
+    "format": "prettier -l --write \"**/*.ts\"",
+    "format-check": "prettier --check \"**/*.ts\"",
     "test": "jest",
-    "dev": "node --watch src/index.js"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc"
   },
   "dependencies": {
+    "better-sqlite3": "^12.9.0",
     "express": "^5.1.0",
     "mysql2": "^3.14.1",
-    "sqlite3": "^6.0.1",
     "uuid": "^12.0.0",
     "wait-port": "^1.1.0"
   },
@@ -26,7 +28,13 @@
     "singleQuote": true
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
     "jest": "^30.0.0",
-    "prettier": "^3.3.0"
+    "prettier": "^3.3.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
   }
 }
