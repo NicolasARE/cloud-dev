@@ -5,14 +5,16 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import jest from 'eslint-plugin-jest';
 import globals from 'globals';
 import prettier from 'eslint-config-prettier';
+import tseslint from 'typescript-eslint';
 
-export default [
+export default tseslint.config(
     {
         ignores: ['dist'],
     },
     js.configs.recommended,
+    ...tseslint.configs.recommended,
     {
-        files: ['**/*.{js,jsx}'],
+        files: ['**/*.{js,jsx,ts,tsx}'],
         languageOptions: {
             ecmaVersion: 'latest',
             sourceType: 'module',
@@ -44,6 +46,7 @@ export default [
                 'warn',
                 { allowConstantExport: true },
             ],
+            '@typescript-eslint/no-explicit-any': 'warn',
         },
     },
     {
@@ -61,4 +64,4 @@ export default [
         },
     },
     prettier,
-];
+);
