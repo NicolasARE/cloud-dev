@@ -95,8 +95,8 @@ services:
   client:
     build:
       context: ./client
-    env_file:
-      - .env
+      args:
+        VITE_API_URL: ${VITE_API_URL}
     labels:
       traefik.http.routers.client.rule: Host(`localhost`)
       traefik.http.services.client.loadbalancer.server.port: 80
