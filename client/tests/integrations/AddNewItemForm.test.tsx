@@ -20,7 +20,7 @@ describe('AddItemForm component', () => {
 
     beforeEach(async () => {
         const { addItem } = await import('@/domain/services/addItem.service');
-        (addItem as jest.MockedFunction<any>).mockClear();
+        jest.mocked(addItem).mockClear();
         mockOnNewItem.mockClear();
     });
 
@@ -51,7 +51,7 @@ describe('AddItemForm component', () => {
         const { addItem } = await import('@/domain/services/addItem.service');
         const newItem = { id: '1', name: 'Test Item', completed: false };
 
-        (addItem as jest.MockedFunction<any>).mockResolvedValue(newItem);
+        jest.mocked(addItem).mockResolvedValue(newItem);
 
         render(<AddItemForm onNewItem={mockOnNewItem} />);
 

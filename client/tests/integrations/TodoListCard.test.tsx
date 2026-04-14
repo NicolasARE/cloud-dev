@@ -36,15 +36,15 @@ describe('TodoListCard', () => {
         const { updateItem } = await import('@/domain/services/updateItem.service');
         const { deleteItem } = await import('@/domain/services/deleteItem.service');
 
-        (getItems as jest.MockedFunction<any>).mockClear();
-        (addItem as jest.MockedFunction<any>).mockClear();
-        (updateItem as jest.MockedFunction<any>).mockClear();
-        (deleteItem as jest.MockedFunction<any>).mockClear();
+        jest.mocked(getItems).mockClear();
+        jest.mocked(addItem).mockClear();
+        jest.mocked(updateItem).mockClear();
+        jest.mocked(deleteItem).mockClear();
     });
 
     test('affiche Loading au départ', async () => {
         const { getItems } = await import('@/domain/services/getItem.service');
-        (getItems as jest.MockedFunction<any>).mockResolvedValue([]);
+        jest.mocked(getItems).mockResolvedValue([]);
 
         render(<TodoListCard />);
 
@@ -59,7 +59,7 @@ describe('TodoListCard', () => {
             { id: '2', name: 'Item 2', completed: true },
         ];
 
-        (getItems as jest.MockedFunction<any>).mockResolvedValue(items);
+        jest.mocked(getItems).mockResolvedValue(items);
 
         render(<TodoListCard />);
 
@@ -69,7 +69,7 @@ describe('TodoListCard', () => {
 
     test('affiche message si liste vide', async () => {
         const { getItems } = await import('@/domain/services/getItem.service');
-        (getItems as jest.MockedFunction<any>).mockResolvedValue([]);
+        jest.mocked(getItems).mockResolvedValue([]);
 
         render(<TodoListCard />);
 
@@ -85,8 +85,8 @@ describe('TodoListCard', () => {
         const item1 = [{ id: '1', name: 'Item 1', completed: false }];
         const item2 = { id: '2', name: 'Item 2', completed: false };
 
-        (getItems as jest.MockedFunction<any>).mockResolvedValue(item1);
-        (addItem as jest.MockedFunction<any>).mockResolvedValue(item2);
+        jest.mocked(getItems).mockResolvedValue(item1);
+        jest.mocked(addItem).mockResolvedValue(item2);
 
         render(<TodoListCard />);
 
@@ -109,8 +109,8 @@ describe('TodoListCard', () => {
 
         const items = [{ id: '1', name: 'Item 1', completed: false }];
 
-        (getItems as jest.MockedFunction<any>).mockResolvedValue(items);
-        (deleteItem as jest.MockedFunction<any>).mockResolvedValue(undefined);
+        jest.mocked(getItems).mockResolvedValue(items);
+        jest.mocked(deleteItem).mockResolvedValue(undefined);
 
         render(<TodoListCard />);
 

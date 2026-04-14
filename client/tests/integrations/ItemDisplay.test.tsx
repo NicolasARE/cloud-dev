@@ -50,7 +50,7 @@ describe('ItemDisplay component', () => {
     test('toggleCompletion appelle updateItem et onItemUpdate', async () => {
         const { updateItem } = await import('@/domain/services/updateItem.service');
         const updatedItem = { ...mockItem, completed: true };
-        (updateItem as jest.MockedFunction<any>).mockResolvedValue(updatedItem);
+        jest.mocked(updateItem).mockResolvedValue(updatedItem);
 
         render(
             <ItemDisplay
@@ -74,7 +74,7 @@ describe('ItemDisplay component', () => {
 
     test('removeItem appelle deleteItem et onItemRemoval', async () => {
         const { deleteItem } = await import('@/domain/services/deleteItem.service');
-        (deleteItem as jest.MockedFunction<any>).mockResolvedValue(undefined);
+        jest.mocked(deleteItem).mockResolvedValue(undefined);
 
         render(
             <ItemDisplay
