@@ -35,10 +35,9 @@ export function AddItemForm({ onNewItem }: AddItemFormProps) {
             });
         } catch (error) {
             notify({
-                message: 'Erreur lors de l\'ajout',
+                message: (error as Error).message,
                 type: 'error',
             });
-            console.log(error)
         } finally {
             setSubmitting(false);
         }

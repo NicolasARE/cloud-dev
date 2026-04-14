@@ -19,7 +19,6 @@ async function request<T>(
     } catch {
         data = text;
     }
-    console.log(data)
 
     if (!res.ok) {
         throw new Error(
