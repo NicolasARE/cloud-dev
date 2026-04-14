@@ -53,51 +53,17 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
         }
     }
 
-    // const toggleCompletion = async () => {
-    //     try {
-    //         update(true);
-
-    //         setNotification({
-    //             message: 'Statut mis à jour',
-    //             type: 'success',
-    //         });
-    //     } catch (error) {
-    //         setNotification({
-    //             message: 'Erreur lors du changement de statut',
-    //             type: 'error',
-    //         });
-    //         console.log(error);
-    //     }
-    // };
-
-    // const changeName = async () => {
-    //     try {
-    //         update();
-
-    //         setNotification({
-    //             message: 'Nom mis à jour',
-    //             type: 'success',
-    //         });
-    //     } catch (error) {
-    //         setNotification({
-    //             message: 'Erreur lors du changement de nom',
-    //             type: 'error',
-    //         });
-    //         console.log(error)
-    //     }
-    // };
-
     const removeItem = async () => {
         try {
             await deleteItem(item.id);
             onItemRemoval(item);
 
-            setNotification({
+            notify({
                 message: 'Item supprimé',
                 type: 'success',
             });
         } catch (error) {
-            setNotification({
+            notify({
                 message: 'Erreur lors de la suppression',
                 type: 'error',
             });
