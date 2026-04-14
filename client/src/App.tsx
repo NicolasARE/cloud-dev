@@ -5,7 +5,7 @@ import { Greeting } from './application/components/Greeting';
 import { TodoListCard } from './application/components/TodoListCard';
 
 import './application/assets/index.scss';
-import { NotificationProvider } from './application/contexts/NotificationContext';
+import { NotificationProvider } from './application/contexts/NotificationProvider';
 
 function App() {
     return (

@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 
-import { useNotification } from '../../application/contexts/NotificationContext';
+import { useNotification } from '../../application/contexts/useNotification';
 import { addItem } from '../../domain/services/addItem.service';
 import { AddItemDto, TodoItemDto } from '../../domain/models/Item.model';
 

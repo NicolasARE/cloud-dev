@@ -1,22 +1,12 @@
-import { createContext, useContext, useState, ReactNode, useRef } from 'react';
+import { useState, ReactNode, useRef } from 'react';
 import Alert from 'react-bootstrap/Alert';
+
+import { NotificationContext, Notification } from './NotificationContext';
 
 import '../assets/notification.scss';
 
-type Notification = {
-    message: string;
-    type: 'success' | 'error';
-};
-
-interface NotificationContextType {
-    notify: (n: Notification) => void;
-}
-
-const NotificationContext = createContext<NotificationContextType | null>(null);
-
 export function NotificationProvider({ children }: { children: ReactNode }) {
     const [notification, setNotification] = useState<Notification | null>(null);
-
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const notify = (n: Notification) => {
@@ -29,9 +19,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         }, 3000);
     };
 
-    const handleClose = () => {
-        setNotification(null);
-    };
+    const handleClose = () => setNotification(null);
 
     return (
         <NotificationContext.Provider value={{ notify }}>
@@ -45,16 +33,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                     {notification.message}
                 </Alert>
             )}
-
             {children}
         </NotificationContext.Provider>
     );
-}
-
-export function useNotification() {
-    const ctx = useContext(NotificationContext);
-    if (!ctx) {
-        throw new Error('useNotification doit être utiliser dans NotificationProvider');
-    }
-    return ctx;
 }

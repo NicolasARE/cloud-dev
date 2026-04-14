@@ -8,7 +8,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons/faCheckSquare';
 import { faSquare } from '@fortawesome/free-regular-svg-icons/faSquare';
 
-import { useNotification } from '../../application/contexts/NotificationContext';
+import { useNotification } from '../../application/contexts/useNotification';
 
 import { TodoItem } from '../../domain/models/Item.model';
 import { updateItem } from '../../domain/services/updateItem.service';
