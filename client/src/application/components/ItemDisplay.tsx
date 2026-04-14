@@ -46,10 +46,9 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
 
         } catch (error) {
             notify({
-                message: 'Erreur lors de la mise à jour',
+                message: (error as Error).message,
                 type: 'error',
             });
-            console.log(error);
         }
     }
 
@@ -64,10 +63,9 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
             });
         } catch (error) {
             notify({
-                message: 'Erreur lors de la suppression',
+                message: (error as Error).message,
                 type: 'error',
             });
-            console.log(error);
         }
     };
 

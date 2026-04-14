@@ -1,6 +1,6 @@
-import type { AddItemDto, TodoItemDto } from '../models/Item.model';
 import { apiClient } from '../utils/apiClient';
+import type { AddItemDto, TodoItemDto } from '../models/Item.model';
 
 export function addItem(dto: AddItemDto): Promise<TodoItemDto> {
-    return apiClient.post<TodoItemDto, AddItemDto>('/items', dto);
+    return apiClient.post<TodoItemDto>('/items', dto);
 }
