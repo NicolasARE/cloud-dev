@@ -2,8 +2,8 @@ import { describe, beforeEach, afterEach, test, expect } from '@jest/globals';
 
 import fs from 'fs';
 import path from 'path';
-import db from '../../src/persistence/sqlite';
-import type { ToDoItem } from '../../src/static/models/ToDoItem';
+import db from '../../../src/persistence/sqlite';
+import type { ToDoItem } from '../../../src/static/models/ToDoItem';
 
 const dbPath =
     process.env.SQLITE_DB_LOCATION ??

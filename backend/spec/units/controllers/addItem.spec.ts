@@ -1,6 +1,6 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
 import type { Request } from 'express';
-import type { ToDoItem, ToDoItemDtoAdd } from '../../src/static/models/ToDoItem.js';
+import type { ToDoItem, ToDoItemDtoAdd } from '../../../src/static/models/ToDoItem.js';
 
 const mockAddItem = jest.fn<(input: ToDoItemDtoAdd) => Promise<ToDoItem>>();
 const mockUuid = jest.fn();
@@ -15,7 +15,7 @@ jest.unstable_mockModule('../../src/services/item.js', () => ({
     },
 }));
 
-const { default: addItem } = await import('../../src/controllers/addItem.js');
+const { default: addItem } = await import('../../../src/controllers/addItem.js');
 
 describe('addItem route', () => {
     beforeEach(() => {

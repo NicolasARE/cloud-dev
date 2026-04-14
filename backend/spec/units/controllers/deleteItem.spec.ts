@@ -1,17 +1,17 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
 import type { Request } from 'express';
 
-import type { ToDoItemDtoId } from '../../src/static/models/ToDoItem.js';
+import type { ToDoItemDtoId } from '../../../src/static/models/ToDoItem.js';
 
 const mockDeleteItem = jest.fn<(id: string) => Promise<void>>();
 
-jest.unstable_mockModule('../../src/services/item.js', () => ({
+jest.unstable_mockModule('../../../src/services/item.js', () => ({
     default: {
         deleteItem: mockDeleteItem,
     },
 }));
 
-const { default: deleteItem } = await import('../../src/controllers/deleteItem.js');
+const { default: deleteItem } = await import('../../../src/controllers/deleteItem.js');
 
 describe('deleteItem route', () => {
     beforeEach(() => {
