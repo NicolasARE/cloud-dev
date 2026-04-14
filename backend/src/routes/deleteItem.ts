@@ -10,7 +10,7 @@ const deleteItem = async (
 
   await db.removeItem(id);
 
-  res.sendStatus(200);
+  res.sendStatus(204);
 };
 
 export default deleteItem;

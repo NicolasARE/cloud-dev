@@ -35,6 +35,6 @@ describe('deleteItem route', () => {
         expect(mockRemoveItem).toHaveBeenCalledTimes(1);
         expect(mockRemoveItem).toHaveBeenCalledWith(request.params.id);
 
-        expect(res.sendStatus).toHaveBeenCalledWith(200);
+        expect(res.sendStatus).toHaveBeenCalledWith(204);
     });
 });
