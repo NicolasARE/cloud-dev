@@ -9,7 +9,7 @@ jest.unstable_mockModule('uuid', () => ({
     v4: mockUuid,
 }));
 
-jest.unstable_mockModule('../../src/services/item.js', () => ({
+jest.unstable_mockModule('../../../src/services/item.js', () => ({
     default: {
         addItem: mockAddItem,
     },
