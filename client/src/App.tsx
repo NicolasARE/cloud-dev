@@ -1,10 +1,10 @@
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { Greeting } from './components/Greeting';
-import { TodoListCard } from './components/TodoListCard';
+import { Greeting } from './application/components/Greeting';
+import { TodoListCard } from './application/components/TodoListCard';
 
-import './index.scss';
+import './application/assets/index.scss';
 
 function App() {
     return (

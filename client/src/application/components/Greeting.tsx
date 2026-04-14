@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
+import { getGreeting } from '../../domain/services/getGreeting.service';
 
 export function Greeting() {
     const [greeting, setGreeting] = useState<string>('');
 
     useEffect(() => {
-        fetch('/api/greeting')
-            .then((r) => r.json())
-            .then((d) => setGreeting(d.greeting));
+        getGreeting()
+            .then((data) => setGreeting(data.greeting))
+            .catch(() => setGreeting(''));
     }, []);
 
     if (!greeting) {

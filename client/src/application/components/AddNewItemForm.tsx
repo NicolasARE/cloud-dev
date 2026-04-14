@@ -2,7 +2,9 @@ import { useState, FormEvent } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { CreateItemDto, TodoItemDto } from '../dtos/Item.dtos';
+
+import { addItem } from '../../domain/services/addItem.service';
+import { CreateItemDto, TodoItemDto } from '../../domain/models/Item.model';
 
 interface AddItemFormProps {
     onNewItem: (item: TodoItemDto) => void;
@@ -12,25 +14,20 @@ export function AddItemForm({ onNewItem }: AddItemFormProps) {
     const [newItem, setNewItem] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
-    const submitNewItem = (e: FormEvent) => {
+    const submitNewItem = async (e: FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
 
-        const createDto: CreateItemDto = { name: newItem };
+        try {
+            const dto: CreateItemDto = { name: newItem };
 
-        const options = {
-            method: 'POST',
-            body: JSON.stringify(createDto),
-            headers: { 'Content-Type': 'application/json' },
-        };
+            const item = await addItem(dto);
 
-        fetch('/api/items', options)
-            .then((r) => r.json())
-            .then((item: TodoItemDto) => {
-                onNewItem(item);
-                setSubmitting(false);
-                setNewItem('');
-            });
+            onNewItem(item);
+            setNewItem('');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -46,8 +43,7 @@ export function AddItemForm({ onNewItem }: AddItemFormProps) {
                 <Button
                     type="submit"
                     variant="success"
-                    disabled={!newItem.length}
-                    className={submitting ? 'disabled' : ''}
+                    disabled={!newItem.length || submitting}
                 >
                     {submitting ? 'Adding...' : 'Add Item'}
                 </Button>

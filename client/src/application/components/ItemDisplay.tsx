@@ -6,9 +6,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons/faCheckSquare';
 import { faSquare } from '@fortawesome/free-regular-svg-icons/faSquare';
-import { TodoItem } from '../models/Item.model';
-import { UpdateItemDto } from '../dtos/Item.dtos';
-import './ItemDisplay.scss';
+
+import { TodoItem, UpdateItemDto } from '../../domain/models/Item.model';
+import { updateItem } from '../../domain/services/updateItem.service';
+import { deleteItem } from '../../domain/services/deleteItem.service';
+
+import '../assets/ItemDisplay.scss';
 
 interface ItemDisplayProps {
     item: TodoItem;
@@ -17,25 +20,19 @@ interface ItemDisplayProps {
 }
 
 export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps) {
-    const toggleCompletion = () => {
+    const toggleCompletion = async () => {
         const updateDto: UpdateItemDto = {
             name: item.name,
             completed: !item.completed,
         };
 
-        fetch(`/api/items/${item.id}`, {
-            method: 'PUT',
-            body: JSON.stringify(updateDto),
-            headers: { 'Content-Type': 'application/json' },
-        })
-            .then((r) => r.json())
-            .then(onItemUpdate);
+        const updated = await updateItem(item.id, updateDto);
+        onItemUpdate(updated);
     };
 
-    const removeItem = () => {
-        fetch(`/api/items/${item.id}`, { method: 'DELETE' }).then(() =>
-            onItemRemoval(item),
-        );
+    const removeItem = async () => {
+        await deleteItem(item.id);
+        onItemRemoval(item);
     };
 
     return (
@@ -58,9 +55,11 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
                         />
                     </Button>
                 </Col>
+
                 <Col xs={8} className="name">
                     {item.name}
                 </Col>
+
                 <Col xs={2} className="text-center remove">
                     <Button
                         size="sm"
