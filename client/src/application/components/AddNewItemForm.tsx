@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 
+import { useNotification } from '../../application/contexts/NotificationContext';
 import { addItem } from '../../domain/services/addItem.service';
 import { AddItemDto, TodoItemDto } from '../../domain/models/Item.model';
 
@@ -13,6 +14,8 @@ interface AddItemFormProps {
 export function AddItemForm({ onNewItem }: AddItemFormProps) {
     const [newItem, setNewItem] = useState('');
     const [submitting, setSubmitting] = useState(false);
+
+    const { notify } = useNotification();
 
     const submitNewItem = async (e: FormEvent) => {
         e.preventDefault();
@@ -25,6 +28,17 @@ export function AddItemForm({ onNewItem }: AddItemFormProps) {
 
             onNewItem(item);
             setNewItem('');
+
+            notify({
+                message: 'Item ajouté avec succès',
+                type: 'success',
+            });
+        } catch (error) {
+            notify({
+                message: 'Erreur lors de l\'ajout',
+                type: 'error',
+            });
+            console.log(error)
         } finally {
             setSubmitting(false);
         }

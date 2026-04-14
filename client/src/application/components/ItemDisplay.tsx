@@ -8,7 +8,9 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons/faCheckSquare';
 import { faSquare } from '@fortawesome/free-regular-svg-icons/faSquare';
 
-import { TodoItem, UpdateItemDto } from '../../domain/models/Item.model';
+import { useNotification } from '../../application/contexts/NotificationContext';
+
+import { TodoItem } from '../../domain/models/Item.model';
 import { updateItem } from '../../domain/services/updateItem.service';
 import { deleteItem } from '../../domain/services/deleteItem.service';
 
@@ -24,31 +26,83 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
     const [name, setName] = useState(item.name);
     const [isDirty, setIsDirty] = useState(false);
 
-    const toggleCompletion = async () => {
-        const updated = await updateItem(item.id, {
-            name,
-            completed: !item.completed,
-        });
+    const { notify } = useNotification();
 
-        setName(updated.name);
-        setIsDirty(false);
-        onItemUpdate(updated);
-    };
+    const update = async (toggleChange:boolean = false) => {
+        try {
+            const updated = await updateItem(item.id, {
+                name,
+                completed: toggleChange ? !item.completed : item.completed,
+            });
+    
+            setName(updated.name);
+            setIsDirty(false);
+            onItemUpdate(updated);
 
-    const save = async () => {
-        const updated = await updateItem(item.id, {
-            name: name.trim(),
-            completed: item.completed,
-        });
+            notify({
+                message: 'Item mis à jour',
+                type: 'success',
+            });
 
-        setName(updated.name);
-        setIsDirty(false);
-        onItemUpdate(updated);
-    };
+        } catch (error) {
+            notify({
+                message: 'Erreur lors de la mise à jour',
+                type: 'error',
+            });
+            console.log(error);
+        }
+    }
+
+    // const toggleCompletion = async () => {
+    //     try {
+    //         update(true);
+
+    //         setNotification({
+    //             message: 'Statut mis à jour',
+    //             type: 'success',
+    //         });
+    //     } catch (error) {
+    //         setNotification({
+    //             message: 'Erreur lors du changement de statut',
+    //             type: 'error',
+    //         });
+    //         console.log(error);
+    //     }
+    // };
+
+    // const changeName = async () => {
+    //     try {
+    //         update();
+
+    //         setNotification({
+    //             message: 'Nom mis à jour',
+    //             type: 'success',
+    //         });
+    //     } catch (error) {
+    //         setNotification({
+    //             message: 'Erreur lors du changement de nom',
+    //             type: 'error',
+    //         });
+    //         console.log(error)
+    //     }
+    // };
 
     const removeItem = async () => {
-        await deleteItem(item.id);
-        onItemRemoval(item);
+        try {
+            await deleteItem(item.id);
+            onItemRemoval(item);
+
+            setNotification({
+                message: 'Item supprimé',
+                type: 'success',
+            });
+        } catch (error) {
+            setNotification({
+                message: 'Erreur lors de la suppression',
+                type: 'error',
+            });
+            console.log(error);
+        }
     };
 
     return (
@@ -58,7 +112,7 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
                     <Button
                         size="sm"
                         variant="link"
-                        onClick={toggleCompletion}
+                        onClick={() => update(true)}
                     >
                         <FontAwesomeIcon
                             icon={item.completed ? faCheckSquare : faSquare}
@@ -77,7 +131,7 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                                 e.currentTarget.blur();
-                                save();
+                                update();
                             }
                         }}
                         onBlur={() => {
