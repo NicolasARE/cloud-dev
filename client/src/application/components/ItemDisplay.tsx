@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -20,13 +21,28 @@ interface ItemDisplayProps {
 }
 
 export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps) {
-    const toggleCompletion = async () => {
-        const updateDto: UpdateItemDto = {
-            name: item.name,
-            completed: !item.completed,
-        };
+    const [name, setName] = useState(item.name);
+    const [isDirty, setIsDirty] = useState(false);
 
-        const updated = await updateItem(item.id, updateDto);
+    const toggleCompletion = async () => {
+        const updated = await updateItem(item.id, {
+            name,
+            completed: !item.completed,
+        });
+
+        setName(updated.name);
+        setIsDirty(false);
+        onItemUpdate(updated);
+    };
+
+    const save = async () => {
+        const updated = await updateItem(item.id, {
+            name: name.trim(),
+            completed: item.completed,
+        });
+
+        setName(updated.name);
+        setIsDirty(false);
         onItemUpdate(updated);
     };
 
@@ -40,15 +56,9 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
             <Row>
                 <Col xs={2} className="text-center">
                     <Button
-                        className="toggles"
                         size="sm"
                         variant="link"
                         onClick={toggleCompletion}
-                        aria-label={
-                            item.completed
-                                ? 'Mark item as incomplete'
-                                : 'Mark item as complete'
-                        }
                     >
                         <FontAwesomeIcon
                             icon={item.completed ? faCheckSquare : faSquare}
@@ -56,21 +66,30 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
                     </Button>
                 </Col>
 
-                <Col xs={8} className="name">
-                    {item.name}
+                <Col xs={8}>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => {
+                            setName(e.target.value);
+                            setIsDirty(e.target.value !== item.name);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.currentTarget.blur();
+                                save();
+                            }
+                        }}
+                        onBlur={() => {
+                            setIsDirty(name !== item.name);
+                        }}
+                        className={`form-control ${isDirty ? 'dirty-input' : ''} ${!name ? 'empty-input' : ''}`}
+                    />
                 </Col>
 
                 <Col xs={2} className="text-center remove">
-                    <Button
-                        size="sm"
-                        variant="link"
-                        onClick={removeItem}
-                        aria-label="Remove Item"
-                    >
-                        <FontAwesomeIcon
-                            icon={faTrash}
-                            className="text-danger"
-                        />
+                    <Button size="sm" variant="link" onClick={removeItem}>
+                        <FontAwesomeIcon icon={faTrash} className="text-danger" />
                     </Button>
                 </Col>
             </Row>
