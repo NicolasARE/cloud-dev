@@ -24,7 +24,13 @@ async function updateItem(id: string, input: ToDoItemDtoUpdate): Promise<ToDoIte
   const name = input.name?.trim();
   if (!name) throw new Error("Le nom est requis");
 
-  await todoRepository.updateItem(id, { id, name, completed: !!input.completed });
+  const item: ToDoItem = {
+    id,
+    name: name,
+    completed: !!input.completed,
+  };
+
+  await todoRepository.updateItem(id, item);
   return todoRepository.getItem(id);
 }
 
