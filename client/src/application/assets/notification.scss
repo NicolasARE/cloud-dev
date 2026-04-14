@@ -1,0 +1,10 @@
+.notification {
+    position: fixed !important;
+    top: 20px;
+    left: 50%;
+    translate: -50% 0;
+    z-index: 9999;
+    min-width: 250px;
+    max-width: 100%;
+    width: fit-content;
+}

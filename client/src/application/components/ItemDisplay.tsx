@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -7,7 +8,9 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons/faCheckSquare';
 import { faSquare } from '@fortawesome/free-regular-svg-icons/faSquare';
 
-import { TodoItem, UpdateItemDto } from '../../domain/models/Item.model';
+import { useNotification } from '../../application/contexts/useNotification';
+
+import { TodoItem } from '../../domain/models/Item.model';
 import { updateItem } from '../../domain/services/updateItem.service';
 import { deleteItem } from '../../domain/services/deleteItem.service';
 
@@ -20,19 +23,50 @@ interface ItemDisplayProps {
 }
 
 export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps) {
-    const toggleCompletion = async () => {
-        const updateDto: UpdateItemDto = {
-            name: item.name,
-            completed: !item.completed,
-        };
+    const [name, setName] = useState(item.name);
+    const [isDirty, setIsDirty] = useState(false);
 
-        const updated = await updateItem(item.id, updateDto);
-        onItemUpdate(updated);
-    };
+    const { notify } = useNotification();
+
+    const update = async (toggleChange:boolean = false) => {
+        try {
+            const updated = await updateItem(item.id, {
+                name,
+                completed: toggleChange ? !item.completed : item.completed,
+            });
+    
+            setName(updated.name);
+            setIsDirty(false);
+            onItemUpdate(updated);
+
+            notify({
+                message: 'Item mis à jour',
+                type: 'success',
+            });
+
+        } catch (error) {
+            notify({
+                message: (error as Error).message,
+                type: 'error',
+            });
+        }
+    }
 
     const removeItem = async () => {
-        await deleteItem(item.id);
-        onItemRemoval(item);
+        try {
+            await deleteItem(item.id);
+            onItemRemoval(item);
+
+            notify({
+                message: 'Item supprimé',
+                type: 'success',
+            });
+        } catch (error) {
+            notify({
+                message: (error as Error).message,
+                type: 'error',
+            });
+        }
     };
 
     return (
@@ -40,15 +74,10 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
             <Row>
                 <Col xs={2} className="text-center">
                     <Button
-                        className="toggles"
                         size="sm"
                         variant="link"
-                        onClick={toggleCompletion}
-                        aria-label={
-                            item.completed
-                                ? 'Mark item as incomplete'
-                                : 'Mark item as complete'
-                        }
+                        onClick={() => update(true)}
+                        aria-label="Item Completion Toggle"
                     >
                         <FontAwesomeIcon
                             icon={item.completed ? faCheckSquare : faSquare}
@@ -56,21 +85,30 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
                     </Button>
                 </Col>
 
-                <Col xs={8} className="name">
-                    {item.name}
+                <Col xs={8}>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => {
+                            setName(e.target.value);
+                            setIsDirty(e.target.value !== item.name);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.currentTarget.blur();
+                                update();
+                            }
+                        }}
+                        onBlur={() => {
+                            setIsDirty(name !== item.name);
+                        }}
+                        className={`form-control ${isDirty ? 'dirty-input' : ''} ${!name ? 'empty-input' : ''}`}
+                    />
                 </Col>
 
                 <Col xs={2} className="text-center remove">
-                    <Button
-                        size="sm"
-                        variant="link"
-                        onClick={removeItem}
-                        aria-label="Remove Item"
-                    >
-                        <FontAwesomeIcon
-                            icon={faTrash}
-                            className="text-danger"
-                        />
+                    <Button size="sm" variant="link" onClick={removeItem} aria-label='Remove Item'>
+                        <FontAwesomeIcon icon={faTrash} className="text-danger" />
                     </Button>
                 </Col>
             </Row>

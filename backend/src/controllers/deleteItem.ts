@@ -6,11 +6,15 @@ const deleteItem = async (
   req: Request<ToDoItemDtoId>,
   res: Response
 ): Promise<void> => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  await itemService.deleteItem(id);
+    await itemService.deleteItem(id);
 
-  res.sendStatus(204);
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(404).send((error as Error).message);
+  }
 };
 
 export default deleteItem;

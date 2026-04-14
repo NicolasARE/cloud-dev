@@ -20,21 +20,37 @@ async function addItem(input: ToDoItemDtoAdd): Promise<ToDoItem> {
   return item;
 }
 
-async function updateItem(id: string, input: ToDoItemDtoUpdate): Promise<ToDoItem | undefined> {
+async function updateItem(
+  id: string,
+  input: ToDoItemDtoUpdate
+): Promise<ToDoItem> {
+  const existing = await todoRepository.getItem(id);
+
+  if (!existing) {
+    throw new Error("Item introuvable");
+  }
+
   const name = input.name?.trim();
   if (!name) throw new Error("Le nom est requis");
 
-  const item: ToDoItem = {
+  const updatedItem: ToDoItem = {
     id,
-    name: name,
+    name,
     completed: !!input.completed,
   };
 
-  await todoRepository.updateItem(id, item);
-  return todoRepository.getItem(id);
+  await todoRepository.updateItem(id, updatedItem);
+
+  return updatedItem;
 }
 
 async function deleteItem(id: string): Promise<void> {
+  const existing = await todoRepository.getItem(id);
+
+  if (!existing) {
+    throw new Error("Item introuvable");
+  }
+
   await todoRepository.removeItem(id);
 }
 

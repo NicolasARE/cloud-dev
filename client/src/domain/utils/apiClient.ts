@@ -11,16 +11,24 @@ async function request<T>(
         ...options,
     });
 
+    const text = await res.text();
+    let data: unknown = null;
+
+    try {
+        data = JSON.parse(text);
+    } catch {
+        data = text;
+    }
+
     if (!res.ok) {
-        throw new Error(`API error: ${res.status}`);
+        throw new Error(
+            typeof data === 'string'
+                ? data
+                : (data as { message?: string })?.message || 'Erreur serveur',
+        );
     }
 
-    // DELETE peut ne rien retourner
-    if (res.status === 204) {
-        return undefined as T;
-    }
-
-    return res.json();
+    return data as T;
 }
 
 export const apiClient = {

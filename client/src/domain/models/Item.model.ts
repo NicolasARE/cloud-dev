@@ -4,7 +4,7 @@ export interface TodoItem {
     completed: boolean;
 }
 
-export interface CreateItemDto {
+export interface AddItemDto {
     name: string;
 }
 
