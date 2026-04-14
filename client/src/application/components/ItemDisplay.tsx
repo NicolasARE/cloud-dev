@@ -77,6 +77,7 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
                         size="sm"
                         variant="link"
                         onClick={() => update(true)}
+                        aria-label="Item Completion Toggle"
                     >
                         <FontAwesomeIcon
                             icon={item.completed ? faCheckSquare : faSquare}
@@ -106,7 +107,7 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
                 </Col>
 
                 <Col xs={2} className="text-center remove">
-                    <Button size="sm" variant="link" onClick={removeItem}>
+                    <Button size="sm" variant="link" onClick={removeItem} aria-label='Remove Item'>
                         <FontAwesomeIcon icon={faTrash} className="text-danger" />
                     </Button>
                 </Col>
