@@ -65,23 +65,64 @@ describe('updateItem route', () => {
         expect(mockGetItem).toHaveBeenCalledTimes(1);
         expect(mockGetItem).toHaveBeenCalledWith(ITEM.id);
 
-        expect(res.send).toHaveBeenCalledWith(ITEM);
+        expect(res.send).toHaveBeenCalledWith(expectedUpdatedItem);
     });
 
-    test('il retourne 400 quand le nom est vide', async () => {
+    test('retourne 404 quand item introuvable', async () => {
+        // ARRANGE
         const req = {
             params: { id: '1234' },
             body: {
-                name: ' ',
-                completed: false,
+                name: 'Nouveau titre',
+                completed: true,
             },
-        } as any;
+        } as unknown as Request<ToDoItemDtoId, any, ToDoItemDtoUpdate>;
 
         const res = {
             status: jest.fn().mockReturnThis(),
             send: jest.fn(),
         } as any;
 
-        await expect(updateItem(req, res)).rejects.toThrow('Le nom est requis');
+        mockGetItem.mockResolvedValue(undefined);
+
+        // ACT
+        await updateItem(req, res);
+
+        // ASSERT
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith('Item introuvable');
+
+        expect(mockUpdateItem).not.toHaveBeenCalled();
+    });
+
+    test('retourne 400 quand le nom est vide', async () => {
+        // ARRANGE
+        const req = {
+            params: { id: '1234' },
+            body: {
+                name: ' ',
+                completed: false,
+            },
+        } as unknown as Request<ToDoItemDtoId, any, ToDoItemDtoUpdate>;
+
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        } as any;
+
+        mockGetItem.mockResolvedValue({
+            id: '1234',
+            name: 'ancien',
+            completed: false,
+        });
+
+        // ACT
+        await updateItem(req, res);
+
+        // ASSERT
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith('Le nom est requis');
+
+        expect(mockUpdateItem).not.toHaveBeenCalled();
     });
 });
