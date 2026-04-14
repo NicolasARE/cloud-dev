@@ -1,8 +1,8 @@
-# ADR — Architecture frontend (client)
+# ADR — Architecture client
 
 ## Statut
 
-Accepté
+Accepté (14/04/2026)
 
 ---
 
