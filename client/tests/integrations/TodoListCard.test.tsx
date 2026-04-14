@@ -113,7 +113,8 @@ describe('TodoListCard', () => {
         fireEvent.click(button);
 
         // ASSERT
-        await screen.findByDisplayValue('New item');
+        const newItem = await screen.findByDisplayValue('New item');
+        expect(newItem).toBeInTheDocument();
     });
 
     test('supprime un item', async () => {
@@ -143,4 +144,4 @@ describe('TodoListCard', () => {
             expect(screen.queryByDisplayValue('Item 1')).not.toBeInTheDocument();
         });
     });
-});
+}); 

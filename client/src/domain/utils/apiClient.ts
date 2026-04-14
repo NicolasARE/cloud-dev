@@ -12,7 +12,7 @@ async function request<T>(
     });
 
     const text = await res.text();
-    let data: any = null;
+    let data: unknown = null;
 
     try {
         data = JSON.parse(text);
@@ -24,8 +24,8 @@ async function request<T>(
         throw new Error(
             typeof data === 'string'
                 ? data
-                : data?.message || 'Erreur serveur',
-        )
+                : (data as { message?: string })?.message || 'Erreur serveur',
+        );
     }
 
     return data as T;
