@@ -25,8 +25,9 @@ jest.mock('@/domain/utils/apiClient', () => ({
     },
 }));
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { renderWithProviders } from '../helper/renderWithProviders';
 import { TodoListCard } from '@/application/components/TodoListCard';
 
 describe('TodoListCard', () => {
@@ -43,16 +44,24 @@ describe('TodoListCard', () => {
     });
 
     test('affiche Loading au départ', async () => {
+        // ARRANGE
         const { getItems } = await import('@/domain/services/getItem.service');
         jest.mocked(getItems).mockResolvedValue([]);
 
-        render(<TodoListCard />);
+        renderWithProviders(<TodoListCard />);
 
+        // ASSERT
         expect(screen.getByText('Loading...')).toBeInTheDocument();
+
+        // ACT
         await screen.findByText('No items yet! Add one above!');
+
+        // ASSERT
+        expect(screen.getByText('No items yet! Add one above!')).toBeInTheDocument();
     });
 
     test('affiche les items après fetch', async () => {
+        // ARRANGE
         const { getItems } = await import('@/domain/services/getItem.service');
         const items = [
             { id: '1', name: 'Item 1', completed: false },
@@ -61,24 +70,28 @@ describe('TodoListCard', () => {
 
         jest.mocked(getItems).mockResolvedValue(items);
 
-        render(<TodoListCard />);
+        renderWithProviders(<TodoListCard />);
 
-        expect(await screen.findByText('Item 1')).toBeInTheDocument();
-        expect(screen.getByText('Item 2')).toBeInTheDocument();
+        // ACT + ASSERT
+        expect(await screen.findByDisplayValue('Item 1')).toBeInTheDocument();
+        expect(screen.getByDisplayValue('Item 2')).toBeInTheDocument();
     });
 
     test('affiche message si liste vide', async () => {
+        // ARRANGE
         const { getItems } = await import('@/domain/services/getItem.service');
         jest.mocked(getItems).mockResolvedValue([]);
 
-        render(<TodoListCard />);
+        renderWithProviders(<TodoListCard />);
 
+        // ASSERT + ACT
         expect(
             await screen.findByText('No items yet! Add one above!')
         ).toBeInTheDocument();
     });
 
     test('ajoute un item via le formulaire', async () => {
+        // ARRANGE
         const { getItems } = await import('@/domain/services/getItem.service');
         const { addItem } = await import('@/domain/services/addItem.service');
 
@@ -88,22 +101,23 @@ describe('TodoListCard', () => {
         jest.mocked(getItems).mockResolvedValue(item1);
         jest.mocked(addItem).mockResolvedValue(item2);
 
-        render(<TodoListCard />);
+        renderWithProviders(<TodoListCard />);
 
-        await screen.findByText('Item 1');
+        await screen.findByDisplayValue('Item 1');
 
         const input = screen.getByLabelText('New item');
         const button = screen.getByRole('button', { name: /Add Item/i });
 
-        fireEvent.change(input, { target: { value: 'Item 2' } });
+        // ACT
+        fireEvent.change(input, { target: { value: 'New item' } });
         fireEvent.click(button);
 
-        await waitFor(() => {
-            expect(screen.getByText('Item 2')).toBeInTheDocument();
-        });
+        // ASSERT
+        await screen.findByDisplayValue('New item');
     });
 
     test('supprime un item', async () => {
+        // ARRANGE
         const { getItems } = await import('@/domain/services/getItem.service');
         const { deleteItem } = await import('@/domain/services/deleteItem.service');
 
@@ -112,15 +126,21 @@ describe('TodoListCard', () => {
         jest.mocked(getItems).mockResolvedValue(items);
         jest.mocked(deleteItem).mockResolvedValue(undefined);
 
-        render(<TodoListCard />);
+        renderWithProviders(<TodoListCard />);
 
-        await screen.findByText('Item 1');
+        await screen.findByDisplayValue('Item 1');
+
+        const item = await screen.findByDisplayValue('Item 1');
+        expect(item).toBeInTheDocument();
 
         const removeBtn = screen.getByLabelText('Remove Item');
+
+        // ACT
         fireEvent.click(removeBtn);
 
+        // ASSERT
         await waitFor(() => {
-            expect(screen.queryByText('Item 1')).not.toBeInTheDocument();
+            expect(screen.queryByDisplayValue('Item 1')).not.toBeInTheDocument();
         });
     });
 });

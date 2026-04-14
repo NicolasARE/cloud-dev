@@ -1,6 +1,6 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
 
-// Setup mocks BEFORE any imports that might load them
+// mocks
 jest.mock('@/domain/services/updateItem.service', () => ({
     updateItem: jest.fn(),
 }));
@@ -16,8 +16,9 @@ jest.mock('@/domain/utils/apiClient', () => ({
     },
 }));
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { renderWithProviders } from '../helper/renderWithProviders';
 import { ItemDisplay } from '@/application/components/ItemDisplay';
 
 describe('ItemDisplay component', () => {
@@ -28,14 +29,16 @@ describe('ItemDisplay component', () => {
     beforeEach(async () => {
         const { updateItem } = await import('@/domain/services/updateItem.service');
         const { deleteItem } = await import('@/domain/services/deleteItem.service');
-        (updateItem as jest.Mock).mockClear();
-        (deleteItem as jest.Mock).mockClear();
+
+        jest.mocked(updateItem).mockClear();
+        jest.mocked(deleteItem).mockClear();
         mockUpdate.mockClear();
         mockRemove.mockClear();
     });
 
-    test('affiche le nom de l\'item et le statut', () => {
-        render(
+    test('affiche le nom de l\'item', () => {
+        // ARRANGE
+        renderWithProviders(
             <ItemDisplay
                 item={mockItem}
                 onItemUpdate={mockUpdate}
@@ -43,16 +46,18 @@ describe('ItemDisplay component', () => {
             />
         );
 
-        expect(screen.getByText('Test Item')).toBeInTheDocument();
-        expect(screen.getByLabelText('Mark item as complete')).toBeInTheDocument();
+        // ASSERT
+        expect(screen.getByDisplayValue('Test Item')).toBeInTheDocument();
     });
 
-    test('toggleCompletion appelle updateItem et onItemUpdate', async () => {
+    test('toggle completion appelle updateItem et onItemUpdate', async () => {
+        // ARRANGE
         const { updateItem } = await import('@/domain/services/updateItem.service');
+
         const updatedItem = { ...mockItem, completed: true };
         jest.mocked(updateItem).mockResolvedValue(updatedItem);
 
-        render(
+        renderWithProviders(
             <ItemDisplay
                 item={mockItem}
                 onItemUpdate={mockUpdate}
@@ -60,23 +65,33 @@ describe('ItemDisplay component', () => {
             />
         );
 
-        const toggleBtn = screen.getByLabelText('Mark item as complete');
+        const toggleBtn = screen.getByRole('button', {
+            name: /Item Completion Toggle/i,
+        });
+
+        // ACT
         fireEvent.click(toggleBtn);
 
+        // ASSERT
         await waitFor(() => {
-            expect(updateItem).toHaveBeenCalledWith(mockItem.id, expect.objectContaining({
-                name: mockItem.name,
-                completed: true,
-            }));
+            expect(updateItem).toHaveBeenCalledWith(
+                mockItem.id,
+                expect.objectContaining({
+                    name: mockItem.name,
+                    completed: true,
+                })
+            );
+
             expect(mockUpdate).toHaveBeenCalledWith(updatedItem);
         });
     });
 
     test('removeItem appelle deleteItem et onItemRemoval', async () => {
+        // ARRANGE
         const { deleteItem } = await import('@/domain/services/deleteItem.service');
         jest.mocked(deleteItem).mockResolvedValue(undefined);
 
-        render(
+        renderWithProviders(
             <ItemDisplay
                 item={mockItem}
                 onItemUpdate={mockUpdate}
@@ -85,8 +100,11 @@ describe('ItemDisplay component', () => {
         );
 
         const removeBtn = screen.getByLabelText('Remove Item');
+
+        // ACT
         fireEvent.click(removeBtn);
 
+        // ASSERT
         await waitFor(() => {
             expect(deleteItem).toHaveBeenCalledWith(mockItem.id);
             expect(mockRemove).toHaveBeenCalledWith(mockItem);

@@ -1,6 +1,6 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
 
-// Setup mocks BEFORE any imports that might load them
+// mocks
 jest.mock('@/domain/services/addItem.service', () => ({
     addItem: jest.fn(),
 }));
@@ -11,8 +11,9 @@ jest.mock('@/domain/utils/apiClient', () => ({
     },
 }));
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { renderWithProviders } from '../helper/renderWithProviders';
 import { AddItemForm } from '@/application/components/AddNewItemForm';
 
 describe('AddItemForm component', () => {
@@ -20,13 +21,16 @@ describe('AddItemForm component', () => {
 
     beforeEach(async () => {
         const { addItem } = await import('@/domain/services/addItem.service');
+
         jest.mocked(addItem).mockClear();
         mockOnNewItem.mockClear();
     });
 
     test('affiche le champ et le bouton désactivé au départ', () => {
-        render(<AddItemForm onNewItem={mockOnNewItem} />);
+        // ARRANGE
+        renderWithProviders(<AddItemForm onNewItem={mockOnNewItem} />);
 
+        // ASSERT
         const input = screen.getByLabelText('New item');
         const button = screen.getByRole('button', { name: /Add Item/i });
 
@@ -36,43 +40,45 @@ describe('AddItemForm component', () => {
     });
 
     test('active le bouton quand on tape du texte', () => {
-        render(<AddItemForm onNewItem={mockOnNewItem} />);
+        // ARRANGE
+        renderWithProviders(<AddItemForm onNewItem={mockOnNewItem} />);
 
         const input = screen.getByLabelText('New item');
         const button = screen.getByRole('button', { name: /Add Item/i });
 
+        // ACT
         fireEvent.change(input, { target: { value: 'Test Item' } });
 
+        // ASSERT
         expect((input as HTMLInputElement).value).toBe('Test Item');
         expect(button).toBeEnabled();
     });
 
     test('submit appelle addItem et onNewItem puis réinitialise le champ', async () => {
+        // ARRANGE
         const { addItem } = await import('@/domain/services/addItem.service');
-        const newItem = { id: '1', name: 'Test Item', completed: false };
 
+        const newItem = { id: '1', name: 'Test Item', completed: false };
         jest.mocked(addItem).mockResolvedValue(newItem);
 
-        render(<AddItemForm onNewItem={mockOnNewItem} />);
+        renderWithProviders(<AddItemForm onNewItem={mockOnNewItem} />);
 
         const input = screen.getByLabelText('New item') as HTMLInputElement;
         const button = screen.getByRole('button', { name: /Add Item/i });
 
+        // ACT
         fireEvent.change(input, { target: { value: 'Test Item' } });
         fireEvent.click(button);
 
-        // Vérifier l'état pendant submit
+        // ASSERT (state loading)
         expect(button).toHaveTextContent('Adding...');
         expect(button).toBeDisabled();
 
-        expect(addItem).toHaveBeenCalledWith({ name: 'Test Item' });
-
-        // Attendre que les updates asynchrones se terminent
         await waitFor(() => {
+            expect(addItem).toHaveBeenCalledWith({ name: 'Test Item' });
             expect(mockOnNewItem).toHaveBeenCalledWith(newItem);
         });
 
-        // Vérifier l'état final
         await waitFor(() => {
             expect(input.value).toBe('');
             expect(button).toHaveTextContent('Add Item');
