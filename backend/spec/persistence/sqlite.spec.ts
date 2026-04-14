@@ -43,7 +43,7 @@ describe('SQLite persistence layer', () => {
         await db.init();
 
         // ACT
-        await db.storeItem(ITEM);
+        await db.addItem(ITEM);
         const items = await db.getItems();
 
         // ASSERT
@@ -54,7 +54,7 @@ describe('SQLite persistence layer', () => {
     test('updates an existing item', async () => {
         // ARRANGE
         await db.init();
-        await db.storeItem(ITEM);
+        await db.addItem(ITEM);
 
         const updatedItem: ToDoItem = {
             ...ITEM,
@@ -73,7 +73,7 @@ describe('SQLite persistence layer', () => {
     test('removes an existing item', async () => {
         // ARRANGE
         await db.init();
-        await db.storeItem(ITEM);
+        await db.addItem(ITEM);
 
         // ACT
         await db.removeItem(ITEM.id);
@@ -86,7 +86,7 @@ describe('SQLite persistence layer', () => {
     test('gets a single item by id', async () => {
         // ARRANGE
         await db.init();
-        await db.storeItem(ITEM);
+        await db.addItem(ITEM);
 
         // ACT
         const item = await db.getItem(ITEM.id);

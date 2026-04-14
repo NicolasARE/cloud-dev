@@ -1,23 +1,21 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
 import type { Request } from 'express';
+import type { ToDoItem, ToDoItemDtoAdd } from '../../src/static/models/ToDoItem.js';
 
-import type { ToDoItem, ToDoItemDtoAdd } from '../../src/static/models/ToDoItem';
-
-const mockStoreItem = jest.fn();
+const mockAddItem = jest.fn<(input: ToDoItemDtoAdd) => Promise<ToDoItem>>();
 const mockUuid = jest.fn();
 
-// ARRANGE (mocks modules)
 jest.unstable_mockModule('uuid', () => ({
     v4: mockUuid,
 }));
 
-jest.unstable_mockModule('../../src/persistence/index.js', () => ({
+jest.unstable_mockModule('../../src/services/item.js', () => ({
     default: {
-        storeItem: mockStoreItem,
+        addItem: mockAddItem,
     },
 }));
 
-const { default: addItem } = await import('../../src/routes/addItem.js');
+const { default: addItem } = await import('../../src/controllers/addItem.js');
 
 describe('addItem route', () => {
     beforeEach(() => {
@@ -31,40 +29,41 @@ describe('addItem route', () => {
             name: "Un élément d'exemple",
             completed: false,
         };
-        
+
         const request = {
             body: { name: expectedItem.name },
         } as Request<{}, {}, ToDoItemDtoAdd>;
-
-        const res = {
-            send: jest.fn(),
-        } as any;
-
-        mockUuid.mockReturnValue(expectedItem.id);
-
-        // ACT
-
-        await addItem(request, res);
-
-        // ASSERT
-        expect(mockStoreItem).toHaveBeenCalledTimes(1);
-        expect(mockStoreItem).toHaveBeenCalledWith(expectedItem);
-
-        expect(res.send).toHaveBeenCalledWith(expectedItem);
-    });
-
-    test('retourne 400 quand le nom est manquant', async () => {
-        // ARRANGE
-        const req = { body: {} } as any;
 
         const res = {
             status: jest.fn().mockReturnThis(),
             send: jest.fn(),
         } as any;
 
+        mockAddItem.mockResolvedValue(expectedItem);
+
+        // ACT
+        await addItem(request, res);
+
+        // ASSERT
+        expect(mockAddItem).toHaveBeenCalledTimes(1);
+        expect(mockAddItem).toHaveBeenCalledWith(request.body);
+
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.send).toHaveBeenCalledWith(expectedItem);
+    });
+
+    test('retourne 400 quand le nom est manquant', async () => {
+        // ARRANGE
         const request = {
-            body: { },
+            body: {},
         } as Request<{}, {}, ToDoItemDtoAdd>;
+
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        } as any;
+
+        mockAddItem.mockRejectedValue(new Error('Le nom est requis'));
 
         // ACT
         await addItem(request, res);
@@ -73,7 +72,7 @@ describe('addItem route', () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.send).toHaveBeenCalledWith('Le nom est requis');
 
-        expect(mockStoreItem).not.toHaveBeenCalled();
+        expect(mockAddItem).toHaveBeenCalled();
     });
 
     test('retourne 400 quand le nom est vide', async () => {
@@ -87,6 +86,8 @@ describe('addItem route', () => {
             send: jest.fn(),
         } as any;
 
+        mockAddItem.mockRejectedValue(new Error('Le nom est requis'));
+
         // ACT
         await addItem(request, res);
 
@@ -94,6 +95,6 @@ describe('addItem route', () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.send).toHaveBeenCalledWith('Le nom est requis');
 
-        expect(mockStoreItem).not.toHaveBeenCalled();
+        expect(mockAddItem).toHaveBeenCalled();
     });
 });
