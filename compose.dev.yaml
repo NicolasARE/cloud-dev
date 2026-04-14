@@ -107,6 +107,8 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
     develop:
       watch:
         - path: ./client/src

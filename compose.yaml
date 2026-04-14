@@ -95,6 +95,8 @@ services:
   client:
     build:
       context: ./client
+    env_file:
+      - .env
     labels:
       traefik.http.routers.client.rule: Host(`localhost`)
       traefik.http.services.client.loadbalancer.server.port: 80
