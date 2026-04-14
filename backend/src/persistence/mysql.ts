@@ -115,7 +115,7 @@ function getItem(id: string): Promise<ToDoItem | undefined> {
   });
 }
 
-function storeItem(item: ToDoItem): Promise<void> {
+function addItem(item: ToDoItem): Promise<void> {
   return new Promise((resolve, reject) => {
     pool.query(
       "INSERT INTO todo_items (id, name, completed) VALUES (?, ?, ?)",
@@ -159,7 +159,7 @@ const db: Database = {
   teardown,
   getItems,
   getItem,
-  storeItem,
+  addItem,
   updateItem,
   removeItem,
 };

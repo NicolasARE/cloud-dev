@@ -76,7 +76,7 @@ function getItem(id: string): Promise<ToDoItem | undefined> {
   });
 }
 
-function storeItem(item: ToDoItem): Promise<void> {
+function addItem(item: ToDoItem): Promise<void> {
   const stmt = db.prepare(`
     INSERT INTO todo_items (id, name, completed)
     VALUES (?, ?, ?)
@@ -115,7 +115,7 @@ const sqliteDb: DatabaseInterface = {
   teardown,
   getItems,
   getItem,
-  storeItem,
+  addItem,
   updateItem,
   removeItem,
 };
