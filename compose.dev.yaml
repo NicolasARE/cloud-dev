@@ -81,6 +81,9 @@ services:
           target: /usr/local/app/src
         - path: ./backend/package.json
           action: rebuild
+    volumes:
+      - ./backend:/usr/local/app
+      - backend_node_modules:/usr/local/app/node_modules
     labels:
       traefik.http.routers.backend.rule: Host(`localhost`) && PathPrefix(`/api`)
       traefik.http.services.backend.loadbalancer.server.port: 3000
@@ -176,3 +179,4 @@ services:
 ###################################################
 volumes:
   todo-mysql-data:
+  backend_node_modules:
