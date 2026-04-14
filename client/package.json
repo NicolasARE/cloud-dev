@@ -58,15 +58,5 @@
     "useTabs": false,
     "semi": true,
     "singleQuote": true
-  },
-  "jest": {
-    "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1",
-      "\\.(css|scss)$": "identity-obj-proxy"
-    },
-    "testEnvironment": "jsdom",
-    "transform": {
-      "^.+\\.[jt]sx?$": "babel-jest"
-    }
   }
 }
