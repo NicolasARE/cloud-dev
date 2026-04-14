@@ -9,4 +9,6 @@ export default {
     transform: {
         '^.+\\.[jt]sx?$': 'babel-jest',
     },
+
+    setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
 };

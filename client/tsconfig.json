@@ -26,8 +26,9 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["vite/client", "jest", "@testing-library/jest-dom"]
+    "types": ["vite/client"]
   },
-  "include": ["src", "tests"],
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "tests"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
