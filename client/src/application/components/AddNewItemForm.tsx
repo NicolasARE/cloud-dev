@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 
 import { addItem } from '../../domain/services/addItem.service';
-import { CreateItemDto, TodoItemDto } from '../../domain/models/Item.model';
+import { AddItemDto, TodoItemDto } from '../../domain/models/Item.model';
 
 interface AddItemFormProps {
     onNewItem: (item: TodoItemDto) => void;
@@ -19,7 +19,7 @@ export function AddItemForm({ onNewItem }: AddItemFormProps) {
         setSubmitting(true);
 
         try {
-            const dto: CreateItemDto = { name: newItem };
+            const dto: AddItemDto = { name: newItem };
 
             const item = await addItem(dto);
 
