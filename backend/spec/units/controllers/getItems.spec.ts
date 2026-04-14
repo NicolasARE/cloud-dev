@@ -1,16 +1,15 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
-import type { ToDoItem } from '../../src/static/models/ToDoItem.js';
+import type { ToDoItem } from '../../../src/static/models/ToDoItem.js';
 
-// ARRANGE mock
 const mockGetItems = jest.fn<() => Promise<ToDoItem[]>>();
 
-jest.unstable_mockModule('../../src/persistence/index.js', () => ({
+jest.unstable_mockModule('../../../src/services/item.js', () => ({
     default: {
         getItems: mockGetItems,
     },
 }));
 
-const { default: getItems } = await import('../../src/routes/getItems.js');
+const { default: getItems } = await import('../../../src/controllers/getItems.js');
 
 describe('getItems route', () => {
     beforeEach(() => {

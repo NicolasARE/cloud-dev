@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import db from "../persistence/index.js";
+import itemService from "../services/item.js";
 import type { ToDoItemDtoId } from "../static/models/ToDoItem.js";
 
 const deleteItem = async (
@@ -8,7 +8,7 @@ const deleteItem = async (
 ): Promise<void> => {
   const { id } = req.params;
 
-  await db.removeItem(id);
+  await itemService.deleteItem(id);
 
   res.sendStatus(204);
 };

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import db from "../persistence/index.js";
+import itemService from "../services/item.js";
 
 import type { ToDoItem } from "../static/models/ToDoItem.js";
 
@@ -7,7 +7,7 @@ const getItems = async (
   req: Request,
   res: Response<ToDoItem[]>
 ): Promise<void> => {
-  const items = await db.getItems();
+  const items = await itemService.getItems();
 
   res.send(items);
 };

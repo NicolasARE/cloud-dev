@@ -3,11 +3,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import db from "./persistence/index.js";
-import getGreeting from "./routes/getGreeting.js";
-import getItems from "./routes/getItems.js";
-import addItem from "./routes/addItem.js";
-import updateItem from "./routes/updateItem.js";
-import deleteItem from "./routes/deleteItem.js";
+import getGreeting from "./controllers/getGreeting.js";
+import getItems from "./controllers/getItems.js";
+import addItem from "./controllers/addItem.js";
+import updateItem from "./controllers/updateItem.js";
+import deleteItem from "./controllers/deleteItem.js";
 
 const app: Application = express();
 

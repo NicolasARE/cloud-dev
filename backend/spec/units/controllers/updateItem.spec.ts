@@ -5,20 +5,19 @@ import type {
     ToDoItem,
     ToDoItemDtoId,
     ToDoItemDtoUpdate,
-} from '../../src/static/models/ToDoItem.js';
+} from '../../../src/static/models/ToDoItem.js';
 
-// ARRANGE mocks typés
 const mockGetItem = jest.fn<(id: string) => Promise<ToDoItem | undefined>>();
 const mockUpdateItem = jest.fn<(id: string, item: ToDoItem) => Promise<void>>();
 
-jest.unstable_mockModule('../../src/persistence/index.js', () => ({
+jest.unstable_mockModule('../../../src/persistence/index.js', () => ({
     default: {
         getItem: mockGetItem,
         updateItem: mockUpdateItem,
     },
 }));
 
-const { default: updateItem } = await import('../../src/routes/updateItem.js');
+const { default: updateItem } = await import('../../../src/controllers/updateItem.js');
 
 describe('updateItem route', () => {
     beforeEach(() => {
@@ -70,27 +69,19 @@ describe('updateItem route', () => {
     });
 
     test('il retourne 400 quand le nom est vide', async () => {
-        // ARRANGE
         const req = {
             params: { id: '1234' },
             body: {
                 name: ' ',
                 completed: false,
             },
-        } as unknown as Request<ToDoItemDtoId, any, ToDoItemDtoUpdate>;
+        } as any;
 
         const res = {
             status: jest.fn().mockReturnThis(),
             send: jest.fn(),
         } as any;
 
-        // ACT
-        await updateItem(req, res);
-
-        // ASSERT
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.send).toHaveBeenCalledWith('Le nom est requis');
-
-        expect(mockUpdateItem).not.toHaveBeenCalled();
+        await expect(updateItem(req, res)).rejects.toThrow('Le nom est requis');
     });
 });

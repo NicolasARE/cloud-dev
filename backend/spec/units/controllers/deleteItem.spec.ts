@@ -1,17 +1,17 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
 import type { Request } from 'express';
 
-import type { ToDoItemDtoId } from '../../src/static/models/ToDoItem';
+import type { ToDoItemDtoId } from '../../../src/static/models/ToDoItem.js';
 
-const mockRemoveItem = jest.fn();
+const mockDeleteItem = jest.fn<(id: string) => Promise<void>>();
 
-jest.unstable_mockModule('../../src/persistence/index.js', () => ({
+jest.unstable_mockModule('../../../src/services/item.js', () => ({
     default: {
-        removeItem: mockRemoveItem,
+        deleteItem: mockDeleteItem,
     },
 }));
 
-const { default: deleteItem } = await import('../../src/routes/deleteItem.js');
+const { default: deleteItem } = await import('../../../src/controllers/deleteItem.js');
 
 describe('deleteItem route', () => {
     beforeEach(() => {
@@ -22,7 +22,7 @@ describe('deleteItem route', () => {
         // ARRANGE
         const request = {
             params: { id: '12345' },
-        } as Request<{ id: string }, any, any>;
+        } as Request<ToDoItemDtoId>;
 
         const res = {
             sendStatus: jest.fn(),
@@ -32,8 +32,8 @@ describe('deleteItem route', () => {
         await deleteItem(request, res);
 
         // ASSERT
-        expect(mockRemoveItem).toHaveBeenCalledTimes(1);
-        expect(mockRemoveItem).toHaveBeenCalledWith(request.params.id);
+        expect(mockDeleteItem).toHaveBeenCalledTimes(1);
+        expect(mockDeleteItem).toHaveBeenCalledWith(request.params.id);
 
         expect(res.sendStatus).toHaveBeenCalledWith(204);
     });
