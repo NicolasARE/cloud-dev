@@ -1,27 +1,31 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { AuthRequest } from "../middleware/auth.js";
 import itemService from "../services/item.js";
 
 import type {
   ToDoItem,
-  ToDoItemDtoId,
   ToDoItemDtoUpdate,
 } from "../static/models/ToDoItem.js";
 
 const updateItem = async (
-  req: Request<ToDoItemDtoId, {}, ToDoItemDtoUpdate>,
+  req: AuthRequest,
   res: Response<ToDoItem | string>
 ): Promise<void> => {
   try {
+    if (!req.user) {
+        res.status(401).send("Non autorisé");
+        return;
+    }
     const { id } = req.params;
-    const itemUpdate = req.body;
+    const itemUpdate = req.body as ToDoItemDtoUpdate;
 
-    const item = await itemService.updateItem(id, itemUpdate);
+    const item = await itemService.updateItem(id as string, itemUpdate, req.user.id);
 
     res.send(item);
   } catch (error) {
     const message = (error as Error).message;
 
-    if (message === "Item introuvable") {
+    if (message === "Item introuvable ou non autorisé") {
       res.status(404).send(message);
       return;
     }

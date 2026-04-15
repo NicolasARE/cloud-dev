@@ -1,8 +1,8 @@
 import db from "../persistence/index.js";
 import type { ToDoItem } from "../static/models/ToDoItem.js";
 
-async function getItems(): Promise<ToDoItem[]> {
-  return db.getItems();
+async function getItems(userId: string): Promise<ToDoItem[]> {
+  return db.getItems(userId);
 }
 
 async function getItem(id: string): Promise<ToDoItem | undefined> {

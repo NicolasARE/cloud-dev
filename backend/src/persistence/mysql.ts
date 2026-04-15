@@ -3,6 +3,7 @@ import fs from "fs";
 import mysql, { Pool, RowDataPacket } from "mysql2";
 
 import type { ToDoItem } from "../static/models/ToDoItem.js";
+import type { User } from "../static/models/User.js";
 import type { Database } from "../static/models/Database.js";
 
 
@@ -23,6 +24,14 @@ type DbRow = RowDataPacket & {
   id: string;
   name: string;
   completed: number;
+  userId: string;
+};
+
+type UserRow = RowDataPacket & {
+  id: string;
+  firstName: string;
+  email: string;
+  passwordHash: string;
 };
 
 function readValue(value?: string, file?: string): string {
@@ -56,15 +65,34 @@ async function init(): Promise<void> {
   });
 
   return new Promise((resolve, reject) => {
-    pool.query(
-      "CREATE TABLE IF NOT EXISTS todo_items (id varchar(36), name varchar(255), completed boolean) DEFAULT CHARSET utf8mb4",
-      (err) => {
-        if (err) return reject(err);
+        pool.query(
+          "CREATE TABLE IF NOT EXISTS users (id varchar(36) PRIMARY KEY, firstName varchar(255), email varchar(255) UNIQUE, passwordHash varchar(255)) DEFAULT CHARSET utf8mb4",
+          (err) => {
+            if (err) return reject(err);
+            
+            pool.query(
+              "CREATE TABLE IF NOT EXISTS todo_items (id varchar(36) PRIMARY KEY, name varchar(255), completed boolean, userId varchar(36), FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE) DEFAULT CHARSET utf8mb4",
+              (err) => {
+                if (err) return reject(err);
 
-        console.log(`Connected to mysql db at host ${host}`);
-        resolve();
-      }
-    );
+                // Migration: Add userId to todo_items if it doesn't exist
+                pool.query("SHOW COLUMNS FROM todo_items LIKE 'userId'", (err, rows: any[]) => {
+                    if (err) return reject(err);
+                    if (rows.length === 0) {
+                        pool.query("ALTER TABLE todo_items ADD COLUMN userId varchar(36)", (err) => {
+                            if (err) return reject(err);
+                            console.log(`Connected to mysql db at host ${host} (userId added)`);
+                            resolve();
+                        });
+                    } else {
+                        console.log(`Connected to mysql db at host ${host}`);
+                        resolve();
+                    }
+                });
+              }
+            );
+          }
+        );
   });
 }
 
@@ -77,15 +105,16 @@ function teardown(): Promise<void> {
   });
 }
 
-function getItems(): Promise<ToDoItem[]> {
+function getItems(userId: string): Promise<ToDoItem[]> {
   return new Promise((resolve, reject) => {
-    pool.query<DbRow[]>("SELECT * FROM todo_items", (err, rows: DbRow[]) => {
+    pool.query<DbRow[]>("SELECT * FROM todo_items WHERE userId = ?", [userId], (err, rows: DbRow[]) => {
       if (err) return reject(err);
 
       const items: ToDoItem[] = rows.map((item) => ({
         id: item.id,
         name: item.name,
         completed: item.completed === 1,
+        userId: item.userId,
       }));
 
       resolve(items);
@@ -106,6 +135,7 @@ function getItem(id: string): Promise<ToDoItem | undefined> {
               id: rows[0].id,
               name: rows[0].name,
               completed: rows[0].completed === 1,
+              userId: rows[0].userId,
             }
           : undefined;
 
@@ -118,8 +148,8 @@ function getItem(id: string): Promise<ToDoItem | undefined> {
 function addItem(item: ToDoItem): Promise<void> {
   return new Promise((resolve, reject) => {
     pool.query(
-      "INSERT INTO todo_items (id, name, completed) VALUES (?, ?, ?)",
-      [item.id, item.name, item.completed ? 1 : 0],
+      "INSERT INTO todo_items (id, name, completed, userId) VALUES (?, ?, ?, ?)",
+      [item.id, item.name, item.completed ? 1 : 0, item.userId],
       (err) => {
         if (err) return reject(err);
         resolve();
@@ -154,6 +184,81 @@ function removeItem(id: string): Promise<void> {
   });
 }
 
+// User Methods
+function addUser(user: User & { passwordHash?: string }): Promise<void> {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      "INSERT INTO users (id, firstName, email, passwordHash) VALUES (?, ?, ?, ?)",
+      [user.id, user.firstName, user.email, user.passwordHash],
+      (err) => {
+        if (err) return reject(err);
+        resolve();
+      }
+    );
+  });
+}
+
+function getUserByEmail(email: string): Promise<User | undefined> {
+  return new Promise((resolve, reject) => {
+    pool.query<UserRow[]>(
+      "SELECT * FROM users WHERE email = ?",
+      [email],
+      (err, rows) => {
+        if (err) return reject(err);
+        if (rows.length === 0) return resolve(undefined);
+        const row = rows[0];
+        resolve({
+          id: row.id,
+          firstName: row.firstName,
+          email: row.email,
+          password: row.passwordHash,
+        });
+      }
+    );
+  });
+}
+
+function getUserById(id: string): Promise<User | undefined> {
+  return new Promise((resolve, reject) => {
+    pool.query<UserRow[]>(
+      "SELECT * FROM users WHERE id = ?",
+      [id],
+      (err, rows) => {
+        if (err) return reject(err);
+        if (rows.length === 0) return resolve(undefined);
+        const row = rows[0];
+        resolve({
+          id: row.id,
+          firstName: row.firstName,
+          email: row.email,
+        });
+      }
+    );
+  });
+}
+
+function updateUserPassword(id: string, passwordHash: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      "UPDATE users SET passwordHash = ? WHERE id = ?",
+      [passwordHash, id],
+      (err) => {
+        if (err) return reject(err);
+        resolve();
+      }
+    );
+  });
+}
+
+function deleteUser(id: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    pool.query("DELETE FROM users WHERE id = ?", [id], (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+}
+
 const db: Database = {
   init,
   teardown,
@@ -162,6 +267,11 @@ const db: Database = {
   addItem,
   updateItem,
   removeItem,
+  addUser,
+  getUserByEmail,
+  getUserById,
+  updateUserPassword,
+  deleteUser,
 };
 
 export default db;

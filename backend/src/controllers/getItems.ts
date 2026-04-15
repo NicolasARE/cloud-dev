@@ -1,13 +1,18 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { AuthRequest } from "../middleware/auth.js";
 import itemService from "../services/item.js";
 
 import type { ToDoItem } from "../static/models/ToDoItem.js";
 
 const getItems = async (
-  req: Request,
+  req: AuthRequest,
   res: Response<ToDoItem[]>
 ): Promise<void> => {
-  const items = await itemService.getItems();
+  if (!req.user) {
+    res.status(401).send([]);
+    return;
+  }
+  const items = await itemService.getItems(req.user.id);
 
   res.send(items);
 };

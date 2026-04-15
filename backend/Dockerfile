@@ -3,7 +3,7 @@ FROM node:24 AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install
 
 COPY . .
 
@@ -17,7 +17,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY package.json package-lock.json ./
-RUN npm ci --only=production
+RUN npm install --only=production
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 

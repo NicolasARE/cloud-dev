@@ -2,11 +2,11 @@ import todoRepository from "../repositories/item.js";
 import type { ToDoItem, ToDoItemDtoAdd, ToDoItemDtoUpdate } from "../static/models/ToDoItem.js";
 import { v4 as uuid } from "uuid";
 
-async function getItems(): Promise<ToDoItem[]> {
-  return todoRepository.getItems();
+async function getItems(userId: string): Promise<ToDoItem[]> {
+  return todoRepository.getItems(userId);
 }
 
-async function addItem(input: ToDoItemDtoAdd): Promise<ToDoItem> {
+async function addItem(input: ToDoItemDtoAdd, userId: string): Promise<ToDoItem> {
   const name = input.name?.trim();
   if (!name) throw new Error("Le nom est requis");
 
@@ -14,6 +14,7 @@ async function addItem(input: ToDoItemDtoAdd): Promise<ToDoItem> {
     id: uuid(),
     name,
     completed: false,
+    userId,
   };
 
   await todoRepository.addItem(item);
@@ -22,12 +23,13 @@ async function addItem(input: ToDoItemDtoAdd): Promise<ToDoItem> {
 
 async function updateItem(
   id: string,
-  input: ToDoItemDtoUpdate
+  input: ToDoItemDtoUpdate,
+  userId: string
 ): Promise<ToDoItem> {
   const existing = await todoRepository.getItem(id);
 
-  if (!existing) {
-    throw new Error("Item introuvable");
+  if (!existing || existing.userId !== userId) {
+    throw new Error("Item introuvable ou non autorisé");
   }
 
   const name = input.name?.trim();
@@ -37,6 +39,7 @@ async function updateItem(
     id,
     name,
     completed: !!input.completed,
+    userId,
   };
 
   await todoRepository.updateItem(id, updatedItem);
@@ -44,11 +47,11 @@ async function updateItem(
   return updatedItem;
 }
 
-async function deleteItem(id: string): Promise<void> {
+async function deleteItem(id: string, userId: string): Promise<void> {
   const existing = await todoRepository.getItem(id);
 
-  if (!existing) {
-    throw new Error("Item introuvable");
+  if (!existing || existing.userId !== userId) {
+    throw new Error("Item introuvable ou non autorisé");
   }
 
   await todoRepository.removeItem(id);

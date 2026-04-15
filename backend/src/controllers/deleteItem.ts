@@ -1,15 +1,19 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { AuthRequest } from "../middleware/auth.js";
 import itemService from "../services/item.js";
-import type { ToDoItemDtoId } from "../static/models/ToDoItem.js";
 
 const deleteItem = async (
-  req: Request<ToDoItemDtoId>,
+  req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
+    if (!req.user) {
+        res.status(401).json({ message: "Non autorisé" });
+        return;
+    }
     const { id } = req.params;
 
-    await itemService.deleteItem(id);
+    await itemService.deleteItem(id as string, req.user.id);
 
     res.sendStatus(204);
   } catch (error) {
