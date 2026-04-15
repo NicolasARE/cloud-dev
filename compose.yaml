@@ -74,8 +74,18 @@ services:
       mysql:
         condition: service_healthy
     labels:
-      traefik.http.routers.backend.rule: PathPrefix(`/api`)
+      traefik.http.routers.backend.rule: PathPrefix(`/api`) || PathPrefix(`/metrics`)
       traefik.http.services.backend.loadbalancer.server.port: 3000
+    develop:
+      watch:
+        - path: ./backend/src
+          action: sync
+          target: /app/src
+        - path: ./backend/package.json
+          action: rebuild
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
 
   ###################################################
   # Service: client
@@ -147,6 +157,78 @@ services:
       traefik.http.routers.phpmyadmin.rule: Host(`db.localhost`)
       traefik.http.services.phpmyadmin.loadbalancer.server.port: 80
 
+  ###################################################
+  # Service: prometheus
+  #
+  # This service collects metrics from our application.
+  ###################################################
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - todo-prometheus-data:/prometheus
+    labels:
+      traefik.http.routers.prometheus.rule: Host(`prometheus.localhost`)
+      traefik.http.services.prometheus.loadbalancer.server.port: 9090
+
+  ###################################################
+  # Service: grafana
+  #
+  # This service provides dashboards to visualize our metrics.
+  ###################################################
+  grafana:
+    image: grafana/grafana:10.4.0
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - todo-grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    labels:
+      traefik.http.routers.grafana.rule: Host(`grafana.localhost`)
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
+
+  ###################################################
+  # Service: loki
+  #
+  # This service aggregates logs from all containers.
+  ###################################################
+  loki:
+    image: grafana/loki:2.9.4
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - todo-loki-data:/loki
+    labels:
+      traefik.http.routers.loki.rule: Host(`loki.localhost`)
+      traefik.http.services.loki.loadbalancer.server.port: 3100
+
+  ###################################################
+  # Service: promtail
+  #
+  # This service ships logs from Docker to Loki.
+  ###################################################
+  promtail:
+    image: grafana/promtail:2.9.4
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./loki/promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+
+  ###################################################
+  # Service: jaeger
+  #
+  # This service provides distributed tracing.
+  ###################################################
+  jaeger:
+    image: jaegertracing/all-in-one:1.55
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    labels:
+      traefik.http.routers.jaeger.rule: Host(`jaeger.localhost`)
+      traefik.http.services.jaeger.loadbalancer.server.port: 16686
+
 
 ###################################################
 # Volumes
@@ -157,3 +239,6 @@ services:
 ###################################################
 volumes:
   todo-mysql-data:
+  todo-prometheus-data:
+  todo-grafana-data:
+  todo-loki-data:

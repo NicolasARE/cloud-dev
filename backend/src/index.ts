@@ -1,6 +1,9 @@
+import './tracing.js';
+console.log('Tracing import executed');
 import express, { Application } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import * as promClient from 'prom-client';
 
 import db from './persistence/index.js';
 import getGreeting from './controllers/getGreeting.js';
@@ -20,8 +23,39 @@ const app: Application = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Prometheus setup
+const metricsRegistry = new promClient.Registry();
+promClient.collectDefaultMetrics({ register: metricsRegistry });
+
+const httpRequestDurationMicroseconds = new promClient.Histogram({
+    name: 'http_request_duration_seconds',
+    help: 'Duration of HTTP requests in microseconds',
+    labelNames: ['method', 'route', 'code'],
+    buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
+});
+metricsRegistry.registerMetric(httpRequestDurationMicroseconds);
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'static')));
+
+// Metrics middleware
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        const route = req.route ? req.route.path : req.path;
+        httpRequestDurationMicroseconds
+            .labels(req.method, route, res.statusCode.toString())
+            .observe(duration / 1000);
+    });
+    next();
+});
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', metricsRegistry.contentType);
+    res.end(await metricsRegistry.metrics());
+});
 
 app.get('/api/greeting', getGreeting);
 

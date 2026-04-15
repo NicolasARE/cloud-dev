@@ -1,6 +1,6 @@
 import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 
-const addItemMock = jest.fn();
+const addItemMock: any = jest.fn();
 
 jest.unstable_mockModule('../../../src/repositories/item', () => ({
     default: {
