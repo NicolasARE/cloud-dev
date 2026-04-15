@@ -5,8 +5,8 @@ import type {
 } from '../../../src/static/models/ToDoItem.js';
 
 // mocks repository
-const getItemMock = jest.fn();
-const updateItemMock = jest.fn();
+const getItemMock: any = jest.fn();
+const updateItemMock: any = jest.fn();
 
 jest.unstable_mockModule('../../../src/repositories/item', () => ({
     default: {

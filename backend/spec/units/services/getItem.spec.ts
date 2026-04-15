@@ -1,7 +1,7 @@
 import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 import type { ToDoItem } from '../../../src/static/models/ToDoItem.js';
 
-const getItemsMock = jest.fn();
+const getItemsMock: any = jest.fn();
 
 jest.unstable_mockModule('../../../src/repositories/item', () => ({
     default: {
