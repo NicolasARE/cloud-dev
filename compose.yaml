@@ -130,6 +130,23 @@ services:
       timeout: 5s
       retries: 5
 
+  ###################################################
+  # Service: phpmyadmin
+  #
+  # This service provides a web interface to the MySQL database.
+  # The labels are used to configure Traefik to route requests to db.localhost.
+  ###################################################
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    labels:
+      traefik.http.routers.phpmyadmin.rule: Host(`db.localhost`)
+      traefik.http.services.phpmyadmin.loadbalancer.server.port: 80
+
 
 ###################################################
 # Volumes

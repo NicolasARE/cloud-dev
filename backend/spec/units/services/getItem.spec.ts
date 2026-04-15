@@ -16,31 +16,34 @@ describe('getItems', () => {
         jest.clearAllMocks();
     });
 
-    test('retourne la liste des items', async () => {
+    test('retourne la liste des items pour un utilisateur donné', async () => {
         // ARRANGE
+        const userId = 'user-123';
         const items: ToDoItem[] = [
-            { id: '1', name: 'Item 1', completed: false },
-            { id: '2', name: 'Item 2', completed: true },
+            { id: '1', name: 'Item 1', completed: false, userId: userId },
+            { id: '2', name: 'Item 2', completed: true, userId: userId },
         ];
 
         getItemsMock.mockResolvedValue(items);
 
         // ACT
-        const result = await service.getItems();
+        const result = await service.getItems(userId);
 
         // ASSERT
         expect(getItemsMock).toHaveBeenCalledTimes(1);
+        expect(getItemsMock).toHaveBeenCalledWith(userId);
         expect(result).toEqual(items);
     });
 
     test('propage une erreur du repository', async () => {
         // ARRANGE
+        const userId = 'user-123';
         getItemsMock.mockRejectedValue(new Error('DB error'));
 
         // ACT + ASSERT
-        await expect(service.getItems())
-            .rejects.toThrow('DB error');
+        await expect(service.getItems(userId)).rejects.toThrow('DB error');
 
         expect(getItemsMock).toHaveBeenCalledTimes(1);
+        expect(getItemsMock).toHaveBeenCalledWith(userId);
     });
 });

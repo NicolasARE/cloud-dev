@@ -1,4 +1,11 @@
-import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import {
+    jest,
+    describe,
+    test,
+    expect,
+    beforeEach,
+    afterEach,
+} from '@jest/globals';
 import fs from 'fs';
 import path from 'path';
 
@@ -6,12 +13,14 @@ import db from '../../src/persistence/sqlite.js';
 import updateItemController from '../../src/controllers/updateItem.js';
 import type { ToDoItem } from '../../src/static/models/ToDoItem.js';
 
-const dbPath = path.join(process.cwd(), 'etc/todos/test.db');
+const dbPath = path.join(process.cwd(), 'etc/todos/test-update.db');
+const USER_ID = 'user-integration-update-123';
 
 const ITEM: ToDoItem = {
     id: 'test-id-1',
     name: 'Original name',
     completed: false,
+    userId: USER_ID,
 };
 
 beforeEach(async () => {
@@ -23,11 +32,6 @@ beforeEach(async () => {
     }
 
     await db.init();
-
-    const allItems = await db.getItems();
-    for (const item of allItems) {
-        await db.removeItem(item.id);
-    }
 });
 
 afterEach(async () => {
@@ -41,6 +45,11 @@ afterEach(async () => {
 describe('integration controller updateItem', () => {
     test('met à jour un item existant et retourne l’item modifié', async () => {
         // ARRANGE
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
         await db.addItem(ITEM);
 
         const req = {
@@ -51,6 +60,7 @@ describe('integration controller updateItem', () => {
                 name: 'Updated name',
                 completed: true,
             },
+            user: { id: USER_ID },
         } as any;
 
         const res = {
@@ -67,21 +77,23 @@ describe('integration controller updateItem', () => {
                 id: ITEM.id,
                 name: 'Updated name',
                 completed: true,
-            })
+                userId: USER_ID,
+            }),
         );
 
-            // ASSERT DB
-            const items = await db.getItems();
+        // ASSERT DB
+        const items = await db.getItems(USER_ID);
 
-            expect(items).toHaveLength(1);
-            expect(items[0]).toMatchObject({
-                id: ITEM.id,
-                name: 'Updated name',
-                completed: true,
-            });
+        expect(items).toHaveLength(1);
+        expect(items[0]).toMatchObject({
+            id: ITEM.id,
+            name: 'Updated name',
+            completed: true,
+            userId: USER_ID,
+        });
     });
 
-    test('retourne 404 si item introuvable', async () => {
+    test('retourne 404 si item introuvable ou non autorisé', async () => {
         const req = {
             params: {
                 id: 'does-not-exist',
@@ -89,6 +101,7 @@ describe('integration controller updateItem', () => {
             body: {
                 name: 'New name',
             },
+            user: { id: USER_ID },
         } as any;
 
         const res = {
@@ -101,15 +114,22 @@ describe('integration controller updateItem', () => {
 
         // ASSERT HTTP
         expect(res.status).toHaveBeenCalledWith(404);
-        expect(res.send).toHaveBeenCalledWith('Item introuvable');
+        expect(res.send).toHaveBeenCalledWith(
+            'Item introuvable ou non autorisé',
+        );
 
         // ASSERT DB
-        const items = await db.getItems();
+        const items = await db.getItems(USER_ID);
 
         expect(items).toHaveLength(0);
     });
 
     test('retourne 400 si le nom est invalide', async () => {
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
         await db.addItem(ITEM);
 
         const req = {
@@ -119,6 +139,7 @@ describe('integration controller updateItem', () => {
             body: {
                 name: ' ',
             },
+            user: { id: USER_ID },
         } as any;
 
         const res = {
@@ -134,7 +155,7 @@ describe('integration controller updateItem', () => {
         expect(res.send).toHaveBeenCalledWith('Le nom est requis');
 
         // ASSERT DB (non modifiée)
-        const items = await db.getItems();
+        const items = await db.getItems(USER_ID);
 
         expect(items[0].name).toBe(ITEM.name);
     });

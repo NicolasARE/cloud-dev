@@ -21,7 +21,7 @@ describe('getItems service', () => {
             { id: '2', name: 'Item 2', completed: true },
         ];
 
-        (apiClient.get as jest.Mock).mockResolvedValue(mockItems);
+        jest.mocked(apiClient.get).mockResolvedValue(mockItems);
 
         // ACT
         const result = await getItems();
@@ -35,7 +35,7 @@ describe('getItems service', () => {
         // ARRANGE
         const error = new Error('Erreur API');
 
-        (apiClient.get as jest.Mock).mockRejectedValue(error);
+        jest.mocked(apiClient.get).mockRejectedValue(error);
 
         // ACT + ASSERT
         await expect(getItems()).rejects.toThrow('Erreur API');

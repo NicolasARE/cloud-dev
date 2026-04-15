@@ -3,7 +3,7 @@ import type { Request } from 'express';
 
 import type { ToDoItemDtoId } from '../../../src/static/models/ToDoItem.js';
 
-const mockDeleteItem = jest.fn<(id: string) => Promise<void>>();
+const mockDeleteItem = jest.fn<(id: string, userId: string) => Promise<void>>();
 
 jest.unstable_mockModule('../../../src/services/item.js', () => ({
     default: {
@@ -11,7 +11,8 @@ jest.unstable_mockModule('../../../src/services/item.js', () => ({
     },
 }));
 
-const { default: deleteItem } = await import('../../../src/controllers/deleteItem.js');
+const { default: deleteItem } =
+    await import('../../../src/controllers/deleteItem.js');
 
 describe('deleteItem route', () => {
     beforeEach(() => {
@@ -20,11 +21,16 @@ describe('deleteItem route', () => {
 
     test("il supprime l'élément correctement", async () => {
         // ARRANGE
+        const userId = 'user-123';
+        const itemId = '12345';
         const request = {
-            params: { id: '12345' },
-        } as Request<ToDoItemDtoId>;
+            params: { id: itemId },
+            user: { id: userId },
+        } as any;
 
         const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
             sendStatus: jest.fn(),
         } as any;
 
@@ -33,7 +39,7 @@ describe('deleteItem route', () => {
 
         // ASSERT
         expect(mockDeleteItem).toHaveBeenCalledTimes(1);
-        expect(mockDeleteItem).toHaveBeenCalledWith(request.params.id);
+        expect(mockDeleteItem).toHaveBeenCalledWith(itemId, userId);
 
         expect(res.sendStatus).toHaveBeenCalledWith(204);
     });

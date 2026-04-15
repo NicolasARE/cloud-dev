@@ -9,10 +9,12 @@ const dbPath =
     process.env.SQLITE_DB_LOCATION ??
     path.join(process.cwd(), 'etc/todos/todo.db');
 
+const USER_ID = 'user-123';
 const ITEM: ToDoItem = {
     id: '7aef3d7c-d301-4846-8358-2a91ec9d6be3',
     name: 'Test',
     completed: false,
+    userId: USER_ID,
 };
 
 beforeEach(() => {
@@ -38,13 +40,30 @@ describe('SQLite persistence layer', () => {
         expect(result).toBeUndefined();
     });
 
-    test('stores and retrieves items', async () => {
+    test('stores and retrieves items for a specific user', async () => {
         // ARRANGE
         await db.init();
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
+        await db.addUser({
+            id: 'other-user',
+            firstName: 'Other',
+            email: 'other@example.com',
+        });
+
+        const otherItem: ToDoItem = {
+            ...ITEM,
+            id: 'other-id',
+            userId: 'other-user',
+        };
 
         // ACT
         await db.addItem(ITEM);
-        const items = await db.getItems();
+        await db.addItem(otherItem);
+        const items = await db.getItems(USER_ID);
 
         // ASSERT
         expect(items).toHaveLength(1);
@@ -54,6 +73,11 @@ describe('SQLite persistence layer', () => {
     test('updates an existing item', async () => {
         // ARRANGE
         await db.init();
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
         await db.addItem(ITEM);
 
         const updatedItem: ToDoItem = {
@@ -63,7 +87,7 @@ describe('SQLite persistence layer', () => {
 
         // ACT
         await db.updateItem(ITEM.id, updatedItem);
-        const items = await db.getItems();
+        const items = await db.getItems(USER_ID);
 
         // ASSERT
         expect(items).toHaveLength(1);
@@ -73,11 +97,16 @@ describe('SQLite persistence layer', () => {
     test('removes an existing item', async () => {
         // ARRANGE
         await db.init();
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
         await db.addItem(ITEM);
 
         // ACT
         await db.removeItem(ITEM.id);
-        const items = await db.getItems();
+        const items = await db.getItems(USER_ID);
 
         // ASSERT
         expect(items).toHaveLength(0);
@@ -86,6 +115,11 @@ describe('SQLite persistence layer', () => {
     test('gets a single item by id', async () => {
         // ARRANGE
         await db.init();
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
         await db.addItem(ITEM);
 
         // ACT
