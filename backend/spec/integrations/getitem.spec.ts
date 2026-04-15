@@ -6,12 +6,14 @@ import db from '../../src/persistence/sqlite.js';
 import getItemsController from '../../src/controllers/getItems.js';
 import type { ToDoItem } from '../../src/static/models/ToDoItem.js';
 
-const dbPath = path.join(process.cwd(), 'etc/todos/test.db');
+const dbPath = path.join(process.cwd(), 'etc/todos/test-get.db');
+const USER_ID = 'user-integration-123';
 
 const ITEM: ToDoItem = {
   id: '1',
   name: 'integration item',
   completed: false,
+  userId: USER_ID,
 };
 
 beforeEach(async () => {
@@ -23,11 +25,6 @@ beforeEach(async () => {
   }
 
   await db.init();
-
-  const allItems = await db.getItems();
-  for (const item of allItems) {
-    await db.removeItem(item.id);
-  }
 });
 
 afterEach(async () => {
@@ -39,13 +36,17 @@ afterEach(async () => {
 });
 
 describe('integration controller getItems', () => {
-  test('retourne les items depuis la vraie DB', async () => {
+  test('retourne les items depuis la vraie DB pour l\'utilisateur authentifié', async () => {
     // ARRANGE
+    await db.addUser({ id: USER_ID, firstName: 'Test', email: 'test@example.com' });
     await db.addItem(ITEM);
 
-    const req = {} as any;
+    const req = {
+        user: { id: USER_ID }
+    } as any;
 
     const res = {
+      status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as any;
 
@@ -58,6 +59,7 @@ describe('integration controller getItems', () => {
         id: ITEM.id,
         name: ITEM.name,
         completed: ITEM.completed,
+        userId: ITEM.userId,
       },
     ]);
   });

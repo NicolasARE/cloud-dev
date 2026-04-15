@@ -10,11 +10,8 @@ import type { Database as DatabaseInterface } from "../static/models/Database.js
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const location =
-  process.env.SQLITE_DB_LOCATION ||
-  path.join(__dirname, "../../etc/todos/todo.db");
-
 let db: Database.Database;
+let location: string;
 
 type DbRow = {
   id: string;
@@ -31,6 +28,10 @@ type UserRow = {
 };
 
 function init(): Promise<void> {
+  location =
+    process.env.SQLITE_DB_LOCATION ||
+    path.join(__dirname, "../../etc/todos/todo.db");
+
   const dirName = path.dirname(location);
 
   if (!fs.existsSync(dirName)) {

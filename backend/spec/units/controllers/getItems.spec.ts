@@ -22,9 +22,13 @@ describe('getItems route', () => {
             { id: '1', name: 'test', completed: false },
         ];
 
-        const req = {} as any;
+        const userId = 'user-123';
+        const req = {
+            user: { id: userId },
+        } as any;
 
         const res = {
+            status: jest.fn().mockReturnThis(),
             send: jest.fn(),
         } as any;
 
@@ -35,6 +39,7 @@ describe('getItems route', () => {
 
         // ASSERT
         expect(mockGetItems).toHaveBeenCalledTimes(1);
+        expect(mockGetItems).toHaveBeenCalledWith(userId);
         expect(res.send).toHaveBeenCalledWith(ITEMS);
     });
 });

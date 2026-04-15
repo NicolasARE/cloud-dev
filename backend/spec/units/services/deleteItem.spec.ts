@@ -2,11 +2,12 @@ import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 
 // mock repository
 const deleteItemMock = jest.fn();
+const getItemMock = jest.fn();
 
 jest.unstable_mockModule('../../../src/repositories/item', () => ({
     default: {
         removeItem: deleteItemMock,
-        getItem: jest.fn(),
+        getItem: getItemMock,
     },
 }));
 
@@ -17,49 +18,46 @@ describe('deleteItem', () => {
         jest.clearAllMocks();
     });
 
-    test('supprime un item existant', async () => {
+    test('supprime un item existant appartenant à l\'utilisateur', async () => {
         // ARRANGE
         const id = '12345';
+        const userId = 'user-123';
 
-        // simulate item exists
-        const repo = await import('../../../src/repositories/item');
-        (repo.default.getItem as jest.Mock).mockResolvedValue({ id });
-
+        getItemMock.mockResolvedValue({ id, userId });
         deleteItemMock.mockResolvedValue(undefined);
 
         // ACT
-        await service.deleteItem(id);
+        await service.deleteItem(id, userId);
 
         // ASSERT
         expect(deleteItemMock).toHaveBeenCalledTimes(1);
         expect(deleteItemMock).toHaveBeenCalledWith(id);
     });
 
-    test('propage erreur repository', async () => {
+    test('échoue si l\'utilisateur n\'est pas le propriétaire', async () => {
         // ARRANGE
         const id = '12345';
+        const userId = 'user-123';
+        const otherUserId = 'other-user';
 
-        const repo = await import('../../../src/repositories/item');
-        (repo.default.getItem as jest.Mock).mockResolvedValue({ id });
-
-        deleteItemMock.mockRejectedValue(new Error('DB error'));
+        getItemMock.mockResolvedValue({ id, userId: otherUserId });
 
         // ACT + ASSERT
-        await expect(service.deleteItem(id))
-            .rejects.toThrow('DB error');
+        await expect(service.deleteItem(id, userId))
+            .rejects.toThrow('Item introuvable ou non autorisé');
 
-        expect(deleteItemMock).toHaveBeenCalledWith(id);
+        expect(deleteItemMock).not.toHaveBeenCalled();
     });
 
     test('échoue si item introuvable', async () => {
         // ARRANGE
         const id = 'not-found';
+        const userId = 'user-123';
 
-        const repo = await import('../../../src/repositories/item');
-        (repo.default.getItem as jest.Mock).mockResolvedValue(undefined);
+        getItemMock.mockResolvedValue(undefined);
 
         // ACT + ASSERT
-        await expect(service.deleteItem(id))
-            .rejects.toThrow('Item introuvable');
+        await expect(service.deleteItem(id, userId))
+            .rejects.toThrow('Item introuvable ou non autorisé');
     });
 });

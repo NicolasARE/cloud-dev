@@ -30,13 +30,16 @@ describe('addItem route', () => {
             completed: false,
         };
 
+        const userId = 'user-123';
         const request = {
             body: { name: expectedItem.name },
-        } as Request<{}, {}, ToDoItemDtoAdd>;
+            user: { id: userId },
+        } as any;
 
         const res = {
             status: jest.fn().mockReturnThis(),
             send: jest.fn(),
+            json: jest.fn(),
         } as any;
 
         mockAddItem.mockResolvedValue(expectedItem);
@@ -46,7 +49,7 @@ describe('addItem route', () => {
 
         // ASSERT
         expect(mockAddItem).toHaveBeenCalledTimes(1);
-        expect(mockAddItem).toHaveBeenCalledWith(request.body);
+        expect(mockAddItem).toHaveBeenCalledWith(request.body, userId);
 
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.send).toHaveBeenCalledWith(expectedItem);
@@ -54,13 +57,16 @@ describe('addItem route', () => {
 
     test('retourne 400 quand le nom est manquant', async () => {
         // ARRANGE
+        const userId = 'user-123';
         const request = {
             body: {},
-        } as Request<{}, {}, ToDoItemDtoAdd>;
+            user: { id: userId },
+        } as any;
 
         const res = {
             status: jest.fn().mockReturnThis(),
             send: jest.fn(),
+            json: jest.fn(),
         } as any;
 
         mockAddItem.mockRejectedValue(new Error('Le nom est requis'));
@@ -77,13 +83,16 @@ describe('addItem route', () => {
 
     test('retourne 400 quand le nom est vide', async () => {
         // ARRANGE
+        const userId = 'user-123';
         const request = {
             body: { name: ' ' },
-        } as Request<{}, {}, ToDoItemDtoAdd>;
+            user: { id: userId },
+        } as any;
 
         const res = {
             status: jest.fn().mockReturnThis(),
             send: jest.fn(),
+            json: jest.fn(),
         } as any;
 
         mockAddItem.mockRejectedValue(new Error('Le nom est requis'));
