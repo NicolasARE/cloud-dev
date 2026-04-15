@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-interface User {
+export interface User {
     id: string;
     firstName: string;
     email: string;
@@ -16,18 +16,16 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(null);
-
-    useEffect(() => {
-        const savedToken = localStorage.getItem('token');
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+    children,
+}) => {
+    const [user, setUser] = useState<User | null>(() => {
         const savedUser = localStorage.getItem('user');
-        if (savedToken && savedUser) {
-            setToken(savedToken);
-            setUser(JSON.parse(savedUser));
-        }
-    }, []);
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
+    const [token, setToken] = useState<string | null>(() => {
+        return localStorage.getItem('token');
+    });
 
     const login = (newUser: User, newToken: string) => {
         setToken(newToken);
@@ -44,12 +42,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
+        <AuthContext.Provider
+            value={{ user, token, login, logout, isAuthenticated: !!token }}
+        >
             {children}
         </AuthContext.Provider>
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {

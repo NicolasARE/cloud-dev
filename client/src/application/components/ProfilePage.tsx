@@ -20,7 +20,9 @@ export const ProfilePage: React.FC = () => {
         setPasswordMessage('');
 
         if (newPassword !== newPasswordConfirm) {
-            return setPasswordError('Les nouveaux mots de passe ne correspondent pas');
+            return setPasswordError(
+                'Les nouveaux mots de passe ne correspondent pas',
+            );
         }
 
         setLoading(true);
@@ -31,21 +33,31 @@ export const ProfilePage: React.FC = () => {
             setOldPassword('');
             setNewPassword('');
             setNewPasswordConfirm('');
-        } catch (err: any) {
-            setPasswordError(err.message || 'Erreur lors du changement de mot de passe');
+        } catch (err) {
+            setPasswordError(
+                (err as Error).message ||
+                    'Erreur lors du changement de mot de passe',
+            );
         } finally {
             setLoading(false);
         }
     };
 
     const handleDeleteAccount = async () => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Toutes vos notes seront définitivement supprimées.')) {
+        if (
+            window.confirm(
+                'Êtes-vous sûr de vouloir supprimer votre compte ? Toutes vos notes seront définitivement supprimées.',
+            )
+        ) {
             try {
                 await apiClient.delete('/auth/account');
                 logout();
                 navigate('/login');
-            } catch (err: any) {
-                setPasswordError(err.message || 'Erreur lors de la suppression du compte');
+            } catch (err) {
+                setPasswordError(
+                    (err as Error).message ||
+                        'Erreur lors de la suppression du compte',
+                );
             }
         }
     };
@@ -58,11 +70,15 @@ export const ProfilePage: React.FC = () => {
                 <Card.Body>
                     <h2 className="mb-4">Profil Personnel</h2>
                     <Row className="mb-3">
-                        <Col sm={3} className="text-muted">Prénom</Col>
+                        <Col sm={3} className="text-muted">
+                            Prénom
+                        </Col>
                         <Col>{user.firstName}</Col>
                     </Row>
                     <Row className="mb-3">
-                        <Col sm={3} className="text-muted">Email</Col>
+                        <Col sm={3} className="text-muted">
+                            Email
+                        </Col>
                         <Col>{user.email}</Col>
                     </Row>
                     <hr />
@@ -80,37 +96,49 @@ export const ProfilePage: React.FC = () => {
             <Card className="shadow-sm">
                 <Card.Body>
                     <h3>Changer le mot de passe</h3>
-                    {passwordError && <Alert variant="danger">{passwordError}</Alert>}
-                    {passwordMessage && <Alert variant="success">{passwordMessage}</Alert>}
+                    {passwordError && (
+                        <Alert variant="danger">{passwordError}</Alert>
+                    )}
+                    {passwordMessage && (
+                        <Alert variant="success">{passwordMessage}</Alert>
+                    )}
                     <Form onSubmit={handlePasswordChange}>
                         <Form.Group className="mb-3">
                             <Form.Label>Ancien mot de passe</Form.Label>
-                            <Form.Control 
-                                type="password" 
-                                required 
+                            <Form.Control
+                                type="password"
+                                required
                                 value={oldPassword}
                                 onChange={(e) => setOldPassword(e.target.value)}
                             />
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Nouveau mot de passe</Form.Label>
-                            <Form.Control 
-                                type="password" 
-                                required 
+                            <Form.Control
+                                type="password"
+                                required
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                             />
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Label>Confirmer le nouveau mot de passe</Form.Label>
-                            <Form.Control 
-                                type="password" 
-                                required 
+                            <Form.Label>
+                                Confirmer le nouveau mot de passe
+                            </Form.Label>
+                            <Form.Control
+                                type="password"
+                                required
                                 value={newPasswordConfirm}
-                                onChange={(e) => setNewPasswordConfirm(e.target.value)}
+                                onChange={(e) =>
+                                    setNewPasswordConfirm(e.target.value)
+                                }
                             />
                         </Form.Group>
-                        <Button disabled={loading} type="submit" variant="primary">
+                        <Button
+                            disabled={loading}
+                            type="submit"
+                            variant="primary"
+                        >
                             Mettre à jour le mot de passe
                         </Button>
                     </Form>

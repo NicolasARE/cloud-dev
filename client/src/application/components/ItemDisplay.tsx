@@ -22,19 +22,23 @@ interface ItemDisplayProps {
     onItemRemoval: (item: TodoItem) => void;
 }
 
-export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayProps) {
+export function ItemDisplay({
+    item,
+    onItemUpdate,
+    onItemRemoval,
+}: ItemDisplayProps) {
     const [name, setName] = useState(item.name);
     const [isDirty, setIsDirty] = useState(false);
 
     const { notify } = useNotification();
 
-    const update = async (toggleChange:boolean = false) => {
+    const update = async (toggleChange: boolean = false) => {
         try {
             const updated = await updateItem(item.id, {
                 name,
                 completed: toggleChange ? !item.completed : item.completed,
             });
-    
+
             setName(updated.name);
             setIsDirty(false);
             onItemUpdate(updated);
@@ -43,14 +47,13 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
                 message: 'Item mis à jour',
                 type: 'success',
             });
-
         } catch (error) {
             notify({
                 message: (error as Error).message,
                 type: 'error',
             });
         }
-    }
+    };
 
     const removeItem = async () => {
         try {
@@ -107,8 +110,16 @@ export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: ItemDisplayPr
                 </Col>
 
                 <Col xs={2} className="text-center remove">
-                    <Button size="sm" variant="link" onClick={removeItem} aria-label='Remove Item'>
-                        <FontAwesomeIcon icon={faTrash} className="text-danger" />
+                    <Button
+                        size="sm"
+                        variant="link"
+                        onClick={removeItem}
+                        aria-label="Remove Item"
+                    >
+                        <FontAwesomeIcon
+                            icon={faTrash}
+                            className="text-danger"
+                        />
                     </Button>
                 </Col>
             </Row>

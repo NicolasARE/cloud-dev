@@ -25,7 +25,9 @@ async function register(input: UserDtoRegister): Promise<User> {
     return newUser;
 }
 
-async function login(input: UserDtoLogin): Promise<{ user: User; token: string }> {
+async function login(
+    input: UserDtoLogin,
+): Promise<{ user: User; token: string }> {
     const user = await userRepository.getUserByEmail(input.email);
     if (!user || !user.password) {
         throw new Error('Email ou mot de passe incorrect');
@@ -36,7 +38,9 @@ async function login(input: UserDtoLogin): Promise<{ user: User; token: string }
         throw new Error('Email ou mot de passe incorrect');
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+        expiresIn: '24h',
+    });
 
     // Don't return password
     const userWithoutPassword: User = {
@@ -56,8 +60,14 @@ async function getProfile(id: string): Promise<User> {
     return user;
 }
 
-async function changePassword(id: string, oldPassword: string, newPassword: string): Promise<void> {
-    const user = await userRepository.getUserByEmail((await userRepository.getUserById(id))!.email);
+async function changePassword(
+    id: string,
+    oldPassword: string,
+    newPassword: string,
+): Promise<void> {
+    const user = await userRepository.getUserByEmail(
+        (await userRepository.getUserById(id))!.email,
+    );
     if (!user || !user.password) {
         throw new Error('Utilisateur non trouvé');
     }

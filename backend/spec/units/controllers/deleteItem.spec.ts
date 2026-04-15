@@ -3,7 +3,7 @@ import type { Request } from 'express';
 
 import type { ToDoItemDtoId } from '../../../src/static/models/ToDoItem.js';
 
-const mockDeleteItem = jest.fn<(id: string) => Promise<void>>();
+const mockDeleteItem = jest.fn<(id: string, userId: string) => Promise<void>>();
 
 jest.unstable_mockModule('../../../src/services/item.js', () => ({
     default: {
@@ -11,7 +11,8 @@ jest.unstable_mockModule('../../../src/services/item.js', () => ({
     },
 }));
 
-const { default: deleteItem } = await import('../../../src/controllers/deleteItem.js');
+const { default: deleteItem } =
+    await import('../../../src/controllers/deleteItem.js');
 
 describe('deleteItem route', () => {
     beforeEach(() => {

@@ -1,5 +1,8 @@
 import { jest, describe, test, expect, beforeEach } from '@jest/globals';
-import type { ToDoItem, ToDoItemDtoUpdate } from '../../../src/static/models/ToDoItem.js';
+import type {
+    ToDoItem,
+    ToDoItemDtoUpdate,
+} from '../../../src/static/models/ToDoItem.js';
 
 // mocks repository
 const getItemMock = jest.fn();
@@ -19,7 +22,7 @@ describe('updateItem', () => {
         jest.clearAllMocks();
     });
 
-    test('met à jour un item existant appartenant à l\'utilisateur', async () => {
+    test("met à jour un item existant appartenant à l'utilisateur", async () => {
         // ARRANGE
         const userId = 'user-123';
         const existing: ToDoItem = {
@@ -53,7 +56,7 @@ describe('updateItem', () => {
         expect(result).toEqual(expected);
     });
 
-    test('échoue si l\'utilisateur n\'est pas le propriétaire', async () => {
+    test("échoue si l'utilisateur n'est pas le propriétaire", async () => {
         // ARRANGE
         const userId = 'user-123';
         const otherUserId = 'other-user';
@@ -72,8 +75,9 @@ describe('updateItem', () => {
         };
 
         // ACT + ASSERT
-        await expect(service.updateItem('1234', input, userId))
-            .rejects.toThrow('Item introuvable ou non autorisé');
+        await expect(service.updateItem('1234', input, userId)).rejects.toThrow(
+            'Item introuvable ou non autorisé',
+        );
 
         expect(updateItemMock).not.toHaveBeenCalled();
     });
@@ -89,8 +93,9 @@ describe('updateItem', () => {
         };
 
         // ACT + ASSERT
-        await expect(service.updateItem('1234', input, userId))
-            .rejects.toThrow('Item introuvable ou non autorisé');
+        await expect(service.updateItem('1234', input, userId)).rejects.toThrow(
+            'Item introuvable ou non autorisé',
+        );
 
         expect(updateItemMock).not.toHaveBeenCalled();
     });
@@ -113,8 +118,9 @@ describe('updateItem', () => {
         };
 
         // ACT + ASSERT
-        await expect(service.updateItem('1234', input, userId))
-            .rejects.toThrow('Le nom est requis');
+        await expect(service.updateItem('1234', input, userId)).rejects.toThrow(
+            'Le nom est requis',
+        );
 
         expect(updateItemMock).not.toHaveBeenCalled();
     });

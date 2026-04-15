@@ -24,16 +24,28 @@ function App() {
                         <Row>
                             <Col md={{ span: 8, offset: 2 }}>
                                 <Routes>
-                                    <Route path="/login" element={<LoginPage />} />
-                                    <Route path="/register" element={<RegisterPage />} />
+                                    <Route
+                                        path="/login"
+                                        element={<LoginPage />}
+                                    />
+                                    <Route
+                                        path="/register"
+                                        element={<RegisterPage />}
+                                    />
                                     <Route element={<PrivateRoute />}>
-                                        <Route path="/" element={
-                                            <>
-                                                <Greeting />
-                                                <TodoListCard />
-                                            </>
-                                        } />
-                                        <Route path="/profile" element={<ProfilePage />} />
+                                        <Route
+                                            path="/"
+                                            element={
+                                                <>
+                                                    <Greeting />
+                                                    <TodoListCard />
+                                                </>
+                                            }
+                                        />
+                                        <Route
+                                            path="/profile"
+                                            element={<ProfilePage />}
+                                        />
                                     </Route>
                                 </Routes>
                             </Col>

@@ -41,8 +41,7 @@ describe('getItems', () => {
         getItemsMock.mockRejectedValue(new Error('DB error'));
 
         // ACT + ASSERT
-        await expect(service.getItems(userId))
-            .rejects.toThrow('DB error');
+        await expect(service.getItems(userId)).rejects.toThrow('DB error');
 
         expect(getItemsMock).toHaveBeenCalledTimes(1);
         expect(getItemsMock).toHaveBeenCalledWith(userId);

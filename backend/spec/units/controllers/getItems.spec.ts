@@ -1,7 +1,7 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
 import type { ToDoItem } from '../../../src/static/models/ToDoItem.js';
 
-const mockGetItems = jest.fn<() => Promise<ToDoItem[]>>();
+const mockGetItems = jest.fn<(userId: string) => Promise<ToDoItem[]>>();
 
 jest.unstable_mockModule('../../../src/services/item.js', () => ({
     default: {
@@ -9,7 +9,8 @@ jest.unstable_mockModule('../../../src/services/item.js', () => ({
     },
 }));
 
-const { default: getItems } = await import('../../../src/controllers/getItems.js');
+const { default: getItems } =
+    await import('../../../src/controllers/getItems.js');
 
 describe('getItems route', () => {
     beforeEach(() => {
@@ -18,11 +19,10 @@ describe('getItems route', () => {
 
     test('il récupère les éléments correctement', async () => {
         // ARRANGE
-        const ITEMS: ToDoItem[] = [
-            { id: '1', name: 'test', completed: false },
-        ];
-
         const userId = 'user-123';
+        const ITEMS: ToDoItem[] = [
+            { id: '1', name: 'test', completed: false, userId: userId },
+        ];
         const req = {
             user: { id: userId },
         } as any;

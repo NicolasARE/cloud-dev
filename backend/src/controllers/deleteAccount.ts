@@ -2,7 +2,10 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.js';
 import userService from '../services/user.js';
 
-const deleteAccount = async (req: AuthRequest, res: Response): Promise<void> => {
+const deleteAccount = async (
+    req: AuthRequest,
+    res: Response,
+): Promise<void> => {
     try {
         if (!req.user) {
             res.status(401).json({ message: 'Unauthorized' });

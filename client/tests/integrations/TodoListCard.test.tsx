@@ -34,8 +34,10 @@ describe('TodoListCard', () => {
     beforeEach(async () => {
         const { getItems } = await import('@/domain/services/getItem.service');
         const { addItem } = await import('@/domain/services/addItem.service');
-        const { updateItem } = await import('@/domain/services/updateItem.service');
-        const { deleteItem } = await import('@/domain/services/deleteItem.service');
+        const { updateItem } =
+            await import('@/domain/services/updateItem.service');
+        const { deleteItem } =
+            await import('@/domain/services/deleteItem.service');
 
         jest.mocked(getItems).mockClear();
         jest.mocked(addItem).mockClear();
@@ -57,7 +59,9 @@ describe('TodoListCard', () => {
         await screen.findByText('No items yet! Add one above!');
 
         // ASSERT
-        expect(screen.getByText('No items yet! Add one above!')).toBeInTheDocument();
+        expect(
+            screen.getByText('No items yet! Add one above!'),
+        ).toBeInTheDocument();
     });
 
     test('affiche les items après fetch', async () => {
@@ -86,7 +90,7 @@ describe('TodoListCard', () => {
 
         // ASSERT + ACT
         expect(
-            await screen.findByText('No items yet! Add one above!')
+            await screen.findByText('No items yet! Add one above!'),
         ).toBeInTheDocument();
     });
 
@@ -120,7 +124,8 @@ describe('TodoListCard', () => {
     test('supprime un item', async () => {
         // ARRANGE
         const { getItems } = await import('@/domain/services/getItem.service');
-        const { deleteItem } = await import('@/domain/services/deleteItem.service');
+        const { deleteItem } =
+            await import('@/domain/services/deleteItem.service');
 
         const items = [{ id: '1', name: 'Item 1', completed: false }];
 
@@ -141,7 +146,9 @@ describe('TodoListCard', () => {
 
         // ASSERT
         await waitFor(() => {
-            expect(screen.queryByDisplayValue('Item 1')).not.toBeInTheDocument();
+            expect(
+                screen.queryByDisplayValue('Item 1'),
+            ).not.toBeInTheDocument();
         });
     });
-}); 
+});

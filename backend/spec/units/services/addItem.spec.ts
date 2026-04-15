@@ -48,7 +48,8 @@ describe('addItem', () => {
 
         addItemMock.mockRejectedValue(new Error('DB error'));
 
-        await expect(service.addItem(input, userId))
-            .rejects.toThrow('DB error');
+        await expect(service.addItem(input, userId)).rejects.toThrow(
+            'DB error',
+        );
     });
 });

@@ -1,7 +1,18 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
-import type { ToDoItem, ToDoItemDtoId, ToDoItemDtoUpdate } from '../../../src/static/models/ToDoItem.js';
+import type {
+    ToDoItem,
+    ToDoItemDtoId,
+    ToDoItemDtoUpdate,
+} from '../../../src/static/models/ToDoItem.js';
 
-const mockUpdateItem = jest.fn<(id: string, input: ToDoItemDtoUpdate, userId: string) => Promise<ToDoItem>>();
+const mockUpdateItem =
+    jest.fn<
+        (
+            id: string,
+            input: ToDoItemDtoUpdate,
+            userId: string,
+        ) => Promise<ToDoItem>
+    >();
 
 jest.unstable_mockModule('../../../src/services/item.js', () => ({
     default: {
@@ -9,7 +20,8 @@ jest.unstable_mockModule('../../../src/services/item.js', () => ({
     },
 }));
 
-const { default: updateItem } = await import('../../../src/controllers/updateItem.js');
+const { default: updateItem } =
+    await import('../../../src/controllers/updateItem.js');
 
 describe('updateItem route', () => {
     beforeEach(() => {
@@ -68,14 +80,18 @@ describe('updateItem route', () => {
             send: jest.fn(),
         } as any;
 
-        mockUpdateItem.mockRejectedValue(new Error('Item introuvable ou non autorisé'));
+        mockUpdateItem.mockRejectedValue(
+            new Error('Item introuvable ou non autorisé'),
+        );
 
         // ACT
         await updateItem(req, res);
 
         // ASSERT
         expect(res.status).toHaveBeenCalledWith(404);
-        expect(res.send).toHaveBeenCalledWith('Item introuvable ou non autorisé');
+        expect(res.send).toHaveBeenCalledWith(
+            'Item introuvable ou non autorisé',
+        );
     });
 
     test('retourne 400 quand le nom est requis', async () => {

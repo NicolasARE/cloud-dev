@@ -23,10 +23,14 @@ export const RegisterPage: React.FC = () => {
         setLoading(true);
 
         try {
-            await apiClient.post('/auth/register', { firstName, email, password });
+            await apiClient.post('/auth/register', {
+                firstName,
+                email,
+                password,
+            });
             navigate('/login');
-        } catch (err: any) {
-            setError(err.message || "Échec de l'inscription");
+        } catch (err) {
+            setError((err as Error).message || "Échec de l'inscription");
         } finally {
             setLoading(false);
         }
@@ -40,42 +44,46 @@ export const RegisterPage: React.FC = () => {
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3" id="firstName">
                         <Form.Label>Prénom</Form.Label>
-                        <Form.Control 
-                            type="text" 
-                            required 
-                            value={firstName} 
+                        <Form.Control
+                            type="text"
+                            required
+                            value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                         />
                     </Form.Group>
                     <Form.Group className="mb-3" id="email">
                         <Form.Label>Adresse Mail</Form.Label>
-                        <Form.Control 
-                            type="email" 
-                            required 
-                            value={email} 
+                        <Form.Control
+                            type="email"
+                            required
+                            value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </Form.Group>
                     <Form.Group className="mb-3" id="password">
                         <Form.Label>Mot de passe</Form.Label>
-                        <Form.Control 
-                            type="password" 
-                            required 
-                            value={password} 
+                        <Form.Control
+                            type="password"
+                            required
+                            value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </Form.Group>
                     <Form.Group className="mb-3" id="password-confirm">
                         <Form.Label>Confirmer le mot de passe</Form.Label>
-                        <Form.Control 
-                            type="password" 
-                            required 
-                            value={passwordConfirm} 
+                        <Form.Control
+                            type="password"
+                            required
+                            value={passwordConfirm}
                             onChange={(e) => setPasswordConfirm(e.target.value)}
                         />
                     </Form.Group>
-                    <Button disabled={loading} className="w-100 mt-3" type="submit">
-                        S'inscrire
+                    <Button
+                        disabled={loading}
+                        className="w-100 mt-3"
+                        type="submit"
+                    >
+                        S&apos;inscrire
                     </Button>
                 </Form>
                 <div className="w-100 text-center mt-3">

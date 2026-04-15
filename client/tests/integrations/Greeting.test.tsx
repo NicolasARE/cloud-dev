@@ -18,7 +18,9 @@ describe('Greeting component', () => {
 
     test('affiche le message après appel API', async () => {
         const { apiClient } = await import('@/domain/utils/apiClient');
-        const mockGet = apiClient.get as jest.MockedFunction<(path: string) => Promise<GreetingResponse>>;
+        const mockGet = apiClient.get as jest.MockedFunction<
+            (path: string) => Promise<GreetingResponse>
+        >;
         mockGet.mockResolvedValue({ greeting: 'To-Do App' });
 
         render(<Greeting />);

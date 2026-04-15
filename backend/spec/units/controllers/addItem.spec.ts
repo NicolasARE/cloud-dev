@@ -1,8 +1,12 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
 import type { Request } from 'express';
-import type { ToDoItem, ToDoItemDtoAdd } from '../../../src/static/models/ToDoItem.js';
+import type {
+    ToDoItem,
+    ToDoItemDtoAdd,
+} from '../../../src/static/models/ToDoItem.js';
 
-const mockAddItem = jest.fn<(input: ToDoItemDtoAdd) => Promise<ToDoItem>>();
+const mockAddItem =
+    jest.fn<(input: ToDoItemDtoAdd, userId: string) => Promise<ToDoItem>>();
 const mockUuid = jest.fn();
 
 jest.unstable_mockModule('uuid', () => ({
@@ -15,7 +19,8 @@ jest.unstable_mockModule('../../../src/services/item.js', () => ({
     },
 }));
 
-const { default: addItem } = await import('../../../src/controllers/addItem.js');
+const { default: addItem } =
+    await import('../../../src/controllers/addItem.js');
 
 describe('addItem route', () => {
     beforeEach(() => {
@@ -24,13 +29,13 @@ describe('addItem route', () => {
 
     test("il stocke l'élément correctement", async () => {
         // ARRANGE
+        const userId = 'user-123';
         const expectedItem: ToDoItem = {
             id: '7aef3d7c-d301-4846-8358-2a91ec9d6be3',
             name: "Un élément d'exemple",
             completed: false,
+            userId: userId,
         };
-
-        const userId = 'user-123';
         const request = {
             body: { name: expectedItem.name },
             user: { id: userId },

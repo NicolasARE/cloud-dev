@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, User } from '../contexts/AuthContext';
 import { apiClient } from '../../domain/utils/apiClient';
 
 export const LoginPage: React.FC = () => {
@@ -18,11 +18,14 @@ export const LoginPage: React.FC = () => {
         setLoading(true);
 
         try {
-            const data = await apiClient.post<{ user: any; token: string }>('/auth/login', { email, password });
+            const data = await apiClient.post<{ user: User; token: string }>(
+                '/auth/login',
+                { email, password },
+            );
             login(data.user, data.token);
             navigate('/');
-        } catch (err: any) {
-            setError(err.message || 'Échec de la connexion');
+        } catch (err) {
+            setError((err as Error).message || 'Échec de la connexion');
         } finally {
             setLoading(false);
         }
@@ -36,28 +39,32 @@ export const LoginPage: React.FC = () => {
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3" id="email">
                         <Form.Label>Adresse Mail</Form.Label>
-                        <Form.Control 
-                            type="email" 
-                            required 
-                            value={email} 
+                        <Form.Control
+                            type="email"
+                            required
+                            value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </Form.Group>
                     <Form.Group className="mb-3" id="password">
                         <Form.Label>Mot de passe</Form.Label>
-                        <Form.Control 
-                            type="password" 
-                            required 
-                            value={password} 
+                        <Form.Control
+                            type="password"
+                            required
+                            value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </Form.Group>
-                    <Button disabled={loading} className="w-100 mt-3" type="submit">
+                    <Button
+                        disabled={loading}
+                        className="w-100 mt-3"
+                        type="submit"
+                    >
                         Se connecter
                     </Button>
                 </Form>
                 <div className="w-100 text-center mt-3">
-                    Pas de compte ? <Link to="/register">S'inscrire</Link>
+                    Pas de compte ? <Link to="/register">S&apos;inscrire</Link>
                 </div>
             </Card.Body>
         </Card>

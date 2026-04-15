@@ -43,8 +43,16 @@ describe('SQLite persistence layer', () => {
     test('stores and retrieves items for a specific user', async () => {
         // ARRANGE
         await db.init();
-        await db.addUser({ id: USER_ID, firstName: 'Test', email: 'test@example.com' });
-        await db.addUser({ id: 'other-user', firstName: 'Other', email: 'other@example.com' });
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
+        await db.addUser({
+            id: 'other-user',
+            firstName: 'Other',
+            email: 'other@example.com',
+        });
 
         const otherItem: ToDoItem = {
             ...ITEM,
@@ -65,7 +73,11 @@ describe('SQLite persistence layer', () => {
     test('updates an existing item', async () => {
         // ARRANGE
         await db.init();
-        await db.addUser({ id: USER_ID, firstName: 'Test', email: 'test@example.com' });
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
         await db.addItem(ITEM);
 
         const updatedItem: ToDoItem = {
@@ -85,7 +97,11 @@ describe('SQLite persistence layer', () => {
     test('removes an existing item', async () => {
         // ARRANGE
         await db.init();
-        await db.addUser({ id: USER_ID, firstName: 'Test', email: 'test@example.com' });
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
         await db.addItem(ITEM);
 
         // ACT
@@ -99,7 +115,11 @@ describe('SQLite persistence layer', () => {
     test('gets a single item by id', async () => {
         // ARRANGE
         await db.init();
-        await db.addUser({ id: USER_ID, firstName: 'Test', email: 'test@example.com' });
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
         await db.addItem(ITEM);
 
         // ACT

@@ -1,5 +1,5 @@
-import db from "../persistence/index.js";
-import type { User } from "../static/models/User.js";
+import db from '../persistence/index.js';
+import type { User } from '../static/models/User.js';
 
 async function getUserByEmail(email: string): Promise<User | undefined> {
     return db.getUserByEmail(email);
@@ -13,7 +13,10 @@ async function addUser(user: User & { passwordHash?: string }): Promise<void> {
     return db.addUser(user);
 }
 
-async function updateUserPassword(id: string, passwordHash: string): Promise<void> {
+async function updateUserPassword(
+    id: string,
+    passwordHash: string,
+): Promise<void> {
     return db.updateUserPassword(id, passwordHash);
 }
 

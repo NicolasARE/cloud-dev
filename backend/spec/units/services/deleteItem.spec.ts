@@ -18,7 +18,7 @@ describe('deleteItem', () => {
         jest.clearAllMocks();
     });
 
-    test('supprime un item existant appartenant à l\'utilisateur', async () => {
+    test("supprime un item existant appartenant à l'utilisateur", async () => {
         // ARRANGE
         const id = '12345';
         const userId = 'user-123';
@@ -34,7 +34,7 @@ describe('deleteItem', () => {
         expect(deleteItemMock).toHaveBeenCalledWith(id);
     });
 
-    test('échoue si l\'utilisateur n\'est pas le propriétaire', async () => {
+    test("échoue si l'utilisateur n'est pas le propriétaire", async () => {
         // ARRANGE
         const id = '12345';
         const userId = 'user-123';
@@ -43,8 +43,9 @@ describe('deleteItem', () => {
         getItemMock.mockResolvedValue({ id, userId: otherUserId });
 
         // ACT + ASSERT
-        await expect(service.deleteItem(id, userId))
-            .rejects.toThrow('Item introuvable ou non autorisé');
+        await expect(service.deleteItem(id, userId)).rejects.toThrow(
+            'Item introuvable ou non autorisé',
+        );
 
         expect(deleteItemMock).not.toHaveBeenCalled();
     });
@@ -57,7 +58,8 @@ describe('deleteItem', () => {
         getItemMock.mockResolvedValue(undefined);
 
         // ACT + ASSERT
-        await expect(service.deleteItem(id, userId))
-            .rejects.toThrow('Item introuvable ou non autorisé');
+        await expect(service.deleteItem(id, userId)).rejects.toThrow(
+            'Item introuvable ou non autorisé',
+        );
     });
 });

@@ -1,4 +1,11 @@
-import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import {
+    jest,
+    describe,
+    test,
+    expect,
+    beforeEach,
+    afterEach,
+} from '@jest/globals';
 import fs from 'fs';
 import path from 'path';
 
@@ -38,7 +45,11 @@ afterEach(async () => {
 describe('integration controller updateItem', () => {
     test('met à jour un item existant et retourne l’item modifié', async () => {
         // ARRANGE
-        await db.addUser({ id: USER_ID, firstName: 'Test', email: 'test@example.com' });
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
         await db.addItem(ITEM);
 
         const req = {
@@ -67,19 +78,19 @@ describe('integration controller updateItem', () => {
                 name: 'Updated name',
                 completed: true,
                 userId: USER_ID,
-            })
+            }),
         );
 
-            // ASSERT DB
-            const items = await db.getItems(USER_ID);
+        // ASSERT DB
+        const items = await db.getItems(USER_ID);
 
-            expect(items).toHaveLength(1);
-            expect(items[0]).toMatchObject({
-                id: ITEM.id,
-                name: 'Updated name',
-                completed: true,
-                userId: USER_ID,
-            });
+        expect(items).toHaveLength(1);
+        expect(items[0]).toMatchObject({
+            id: ITEM.id,
+            name: 'Updated name',
+            completed: true,
+            userId: USER_ID,
+        });
     });
 
     test('retourne 404 si item introuvable ou non autorisé', async () => {
@@ -103,7 +114,9 @@ describe('integration controller updateItem', () => {
 
         // ASSERT HTTP
         expect(res.status).toHaveBeenCalledWith(404);
-        expect(res.send).toHaveBeenCalledWith('Item introuvable ou non autorisé');
+        expect(res.send).toHaveBeenCalledWith(
+            'Item introuvable ou non autorisé',
+        );
 
         // ASSERT DB
         const items = await db.getItems(USER_ID);
@@ -112,7 +125,11 @@ describe('integration controller updateItem', () => {
     });
 
     test('retourne 400 si le nom est invalide', async () => {
-        await db.addUser({ id: USER_ID, firstName: 'Test', email: 'test@example.com' });
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
         await db.addItem(ITEM);
 
         const req = {

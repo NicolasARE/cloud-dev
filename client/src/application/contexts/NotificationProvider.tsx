@@ -25,7 +25,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         <NotificationContext.Provider value={{ notify }}>
             {notification && (
                 <Alert
-                    variant={notification.type === 'success' ? 'success' : 'danger'}
+                    variant={
+                        notification.type === 'success' ? 'success' : 'danger'
+                    }
                     onClose={handleClose}
                     dismissible
                     className="notification"

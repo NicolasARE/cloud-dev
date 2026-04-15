@@ -1,4 +1,11 @@
-import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import {
+    jest,
+    describe,
+    test,
+    expect,
+    beforeEach,
+    afterEach,
+} from '@jest/globals';
 import fs from 'fs';
 import path from 'path';
 
@@ -10,92 +17,100 @@ const dbPath = path.join(process.cwd(), 'etc/todos/test-add.db');
 const USER_ID = 'user-integration-add-123';
 
 beforeEach(async () => {
-  process.env.SQLITE_DB_LOCATION = dbPath;
-  process.env.NODE_ENV = 'test';
+    process.env.SQLITE_DB_LOCATION = dbPath;
+    process.env.NODE_ENV = 'test';
 
-  if (fs.existsSync(dbPath)) {
-    fs.unlinkSync(dbPath);
-  }
+    if (fs.existsSync(dbPath)) {
+        fs.unlinkSync(dbPath);
+    }
 
-  await db.init();
+    await db.init();
 });
 
 afterEach(async () => {
-  await db.teardown();
+    await db.teardown();
 
-  if (fs.existsSync(dbPath)) {
-    fs.unlinkSync(dbPath);
-  }
+    if (fs.existsSync(dbPath)) {
+        fs.unlinkSync(dbPath);
+    }
 });
 
 describe('integration controller addItem', () => {
-  test('crée un item et le retourne avec status 201', async () => {
-    // ARRANGE
-    const req = {
-      body: {
-        name: 'New item',
-      } as ToDoItemDtoAdd,
-      user: { id: USER_ID },
-    } as any;
+    test('crée un item et le retourne avec status 201', async () => {
+        // ARRANGE
+        const req = {
+            body: {
+                name: 'New item',
+            } as ToDoItemDtoAdd,
+            user: { id: USER_ID },
+        } as any;
 
-    const res = {
-      status: jest.fn().mockReturnThis(),
-      send: jest.fn(),
-      json: jest.fn(),
-    } as any;
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+            json: jest.fn(),
+        } as any;
 
-    // ACT
-    await db.addUser({ id: USER_ID, firstName: 'Test', email: 'test@example.com' });
-    await addItemController(req, res);
+        // ACT
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
+        await addItemController(req, res);
 
-    // ASSERT HTTP
-    expect(res.status).toHaveBeenCalledWith(201);
+        // ASSERT HTTP
+        expect(res.status).toHaveBeenCalledWith(201);
 
-    const createdItem = res.send.mock.calls[0][0];
+        const createdItem = res.send.mock.calls[0][0];
 
-    expect(createdItem).toMatchObject({
-      name: 'New item',
-      completed: false,
-      userId: USER_ID,
+        expect(createdItem).toMatchObject({
+            name: 'New item',
+            completed: false,
+            userId: USER_ID,
+        });
+
+        // ASSERT DB
+        const items = await db.getItems(USER_ID);
+
+        expect(items).toHaveLength(1);
+        expect(items[0]).toMatchObject({
+            name: 'New item',
+            completed: false,
+            userId: USER_ID,
+        });
     });
 
-    // ASSERT DB
-    const items = await db.getItems(USER_ID);
+    test('retourne 400 si le nom est vide', async () => {
+        // ARRANGE
+        const req = {
+            body: {
+                name: ' ',
+            } as ToDoItemDtoAdd,
+            user: { id: USER_ID },
+        } as any;
 
-    expect(items).toHaveLength(1);
-    expect(items[0]).toMatchObject({
-      name: 'New item',
-      completed: false,
-      userId: USER_ID,
-    });
-  });
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+            json: jest.fn(),
+        } as any;
 
-  test('retourne 400 si le nom est vide', async () => {
-    // ARRANGE
-    const req = {
-        body: {
-        name: ' ',
-        } as ToDoItemDtoAdd,
-        user: { id: USER_ID },
-    } as any;
+        // ACT
+        await db.addUser({
+            id: USER_ID,
+            firstName: 'Test',
+            email: 'test@example.com',
+        });
+        await addItemController(req, res);
 
-    const res = {
-        status: jest.fn().mockReturnThis(),
-        send: jest.fn(),
-        json: jest.fn(),
-    } as any;
+        // ASSERT HTTP
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith('Le nom est requis');
 
-    // ACT
-    await db.addUser({ id: USER_ID, firstName: 'Test', email: 'test@example.com' });
-    await addItemController(req, res);
+        // ASSERT DB
+        const items = await db.getItems(USER_ID);
 
-    // ASSERT HTTP
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.send).toHaveBeenCalledWith('Le nom est requis');
-
-    // ASSERT DB
-    const items = await db.getItems(USER_ID);
-
-    expect(items).toHaveLength(0);
+        expect(items).toHaveLength(0);
     });
 });
