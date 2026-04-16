@@ -1,7 +1,8 @@
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     const token = localStorage.getItem('token');
     // Si VITE_API_URL est vide ou relatif, on s'assure que le chemin commence par /api
-    const baseUrl = import.meta.env.VITE_API_URL || '';
+    const baseUrl = '';
+    // console.log('Base URL:', baseUrl);
     const fullPath =
         baseUrl === '' && !path.startsWith('/api') ? `/api${path}` : path;
 
