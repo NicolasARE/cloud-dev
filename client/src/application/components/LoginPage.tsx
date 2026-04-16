@@ -37,7 +37,7 @@ export const LoginPage: React.FC = () => {
                 <h2 className="text-center mb-4">Connexion</h2>
                 {error && <Alert variant="danger">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3" id="email">
+                    <Form.Group className="mb-3" controlId="email">
                         <Form.Label>Adresse Mail</Form.Label>
                         <Form.Control
                             type="email"
@@ -46,7 +46,7 @@ export const LoginPage: React.FC = () => {
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </Form.Group>
-                    <Form.Group className="mb-3" id="password">
+                    <Form.Group className="mb-3" controlId="password">
                         <Form.Label>Mot de passe</Form.Label>
                         <Form.Control
                             type="password"
