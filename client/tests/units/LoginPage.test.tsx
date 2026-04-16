@@ -8,9 +8,11 @@ import { expect, describe, test, beforeEach } from '@jest/globals';
 // Mocks
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom') as any,
+    ...(jest.requireActual('react-router-dom') as Record<string, unknown>),
     useNavigate: () => mockNavigate,
-    Link: ({ children, to }: any) => <a href={to}>{children}</a>,
+    Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+        <a href={to}>{children}</a>
+    ),
 }));
 
 jest.mock('@/domain/utils/apiClient', () => ({
