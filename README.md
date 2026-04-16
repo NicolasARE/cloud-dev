@@ -1,81 +1,118 @@
-# Getting Started Todo App
+# Todo App - Dev pour le Cloud
 
-This project provides a sample todo list application. It demonstrates all of
-the current Docker best practices, ranging from the Compose file, to the
-Dockerfile, to CI (using GitHub Actions), and running tests. It's intended to 
-be well-documented to ensure anyone can come in and easily learn.
+Par Nicolas Arena et Aurélie Runser
 
-## Application architecture
+## Récupérer le projet
 
-![image](https://github.com/docker/getting-started-todo-app/assets/313480/c128b8e4-366f-4b6f-ad73-08e6652b7c4d)
-
-
-This sample application is a simple React frontend that receives data from a
-Node.js backend. 
-
-When the application is packaged and shipped, the frontend is compiled into
-static HTML, CSS, and JS and then bundled with the backend where it is then
-served as static assets. So no... there is no server-side rendering going on
-with this sample app.
-
-During development, since the backend and frontend need different dev tools, 
-they are split into two separate services. This allows [Vite](https://vitejs.dev/) 
-to manage the React app while [nodemon](https://nodemon.io/) works with the 
-backend. With containers, it's easy to separate the development needs!
-
-## Development
-
-To spin up the project, simply install Docker Desktop and then run the following 
-commands:
-
+Afin de récupérer ce projet, ouvrez un IDE et/ou un terminal de commande dans le dossier qui doit contenir le projet et tappez la commande : 
 ```
-git clone https://github.com/docker/getting-started-todo-app
-cd getting-started-todo-app
-docker compose up --watch
+git clone https://github.com/NicolasARE/cloud-dev.git
+cd cloud-dev
 ```
 
-You'll see several container images get downloaded from Docker Hub and, after a
-moment, the application will be up and running! No need to install or configure
-anything on your machine!
+Afin que le projet fonctionne, pensez à dupliquer le fichier `.env.example` et renommer cette copie `.env`.
 
-Simply open to [http://localhost](http://localhost) to see the app up and running!
+Voici les variables à renseigner : 
 
-Any changes made to either the backend or frontend should be seen immediately
-without needing to rebuild or restart the containers.
+| Variable | Description |
+|----------|-------------|
+| MYSQL_HOST | nom de l'hote de la bdd |
+| MYSQL_USER | nom du user de la bdd |
+| MYSQL_PASSWORD | mot de passe de la bdd |
+| MYSQL_DB | nom de la bdd |
+| MYSQL_ROOT_PASSWORD | mot de passe utilisé par le backend pour se connecter à la bdd (doit être égale à MYSQL_PASSWORD) |
+| MYSQL_DATABASE | nom de la bdd utilisé par le backend pour se connecter à la bdd (doit être égale à MYSQL_DB) |
+| PMA_HOST | nol d'hote utiliser par phpMyAdmint( doit être égale à MYSQL_HOST) |
+| PMA_USER | nom d'utilisateur utilisé par phpMyAdmin pour se connecter à la bdd (doit être égale à MYSQL_USER) |
+| PMA_PASSWORD | mot de passe utilisé par phpMyAdmin pour se connecter à la bdd (doit être égale à MYSQL_PASSWORD) |
+| VITE_API_URL | url utilisé par le frontend (client) pour accéder au backend (doit être `/api/`) |
 
-To help with the database, the development stack also includes phpMyAdmin, which
-can be accessed at [http://db.localhost](http://db.localhost) (most browsers will 
-resolve `*.localhost` correctly, so no hosts file changes should be required).
-
-### Tearing it down
-
-When you're done, simply remove the containers by running the following command:
-
+Voici un exemple de ce que peut être `.env` : 
 ```
-docker compose down
+# backend
+MYSQL_HOST=mysql
+MYSQL_USER=node
+MYSQL_PASSWORD=secret
+MYSQL_DB=todos
+
+# mysql
+MYSQL_ROOT_PASSWORD=secret
+MYSQL_DATABASE=todos
+
+# phpmyadmin
+PMA_HOST=mysql
+PMA_USER=node
+PMA_PASSWORD=secret
+
+# client
+VITE_API_URL=/api/
 ```
 
-# Lancer le Projet
+Vous devez aussi installer les dépendances dans chaque service afin de pouvoir lancer les tests.
 
-## Mode Dev
-(pas besoin de relancer les container pour voir les changements)
+Installer les dépendances du backend en partant de la racine du projet : 
+```
+cd backend
+npm i
+```
+Installer les dépendances du frontend en partant de la racine du projet : 
+```
+cd client
+npm i
+```
+
+## Lancer le Projet
+
+Afin de lancer, vous devez avec Docker Desktop installé.
+
+### Mode Dev
+(Pas besoin de relancer les container pour voir les changements)
 ```
 docker compose -f compose.dev.yaml up --watch
 ```
 
-## Mode Prod
+### Mode Prod
+(Les outils de monitoring ne sont disponibles qu'en mode prod)
 ```
-docker-compose up
+docker compose up -d --build
 ```
 
-# Supprimer les containers
 
-## Mode Dev
+## Supprimer les containers
+
+### Mode Dev
 ```
 docker compose -f compose.dev.yaml down
 ```
 
-## Mode Prod
+### Mode Prod
 ```
 docker compose down
 ```
+
+## Lancer les tests
+
+### Backend
+
+Avant tout, rendez-vous dans le dossier avec : `cd backend` en partant de la racine du projet.
+
+Tous les tests : `npm test`
+Tests unitaires : `npm test units`
+Tests d'integrations : `npm test integrations`
+
+Un test précis : `npm test [units OU integrations]/[Nom du fichier à tester]`
+
+### Frontend
+
+Avant tout, rendez-vous dans le dossier avec : `cd client` en partant de la racine du projet.
+
+Tous les tests : `npm run test`
+Tests unitaires : `npm test units`
+Tests d'integrations : `npm test integrations`
+
+
+## Outils de monitoring
+
+- Prometheus (Métriques) : accessible sur http://prometheus.localhost
+- Grafana (Dashboards & Logs Loki) : accessible sur http://grafana.localhost (admin/admin)
+- Jaeger (Traces) : accessible sur http://jaeger.localhost
