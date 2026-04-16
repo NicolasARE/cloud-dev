@@ -159,6 +159,7 @@ services:
         condition: service_healthy
     labels:
       traefik.http.routers.phpmyadmin.rule: Host(`db.localhost`)
+      traefik.http.routers.phpmyadmin.priority: 200
       traefik.http.services.phpmyadmin.loadbalancer.server.port: 80
 
   ###################################################
@@ -173,6 +174,7 @@ services:
       - todo-prometheus-data:/prometheus
     labels:
       traefik.http.routers.prometheus.rule: Host(`prometheus.localhost`)
+      traefik.http.routers.prometheus.priority: 200
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
 
   ###################################################
@@ -190,6 +192,7 @@ services:
       - prometheus
     labels:
       traefik.http.routers.grafana.rule: Host(`grafana.localhost`)
+      traefik.http.routers.grafana.priority: 200
       traefik.http.services.grafana.loadbalancer.server.port: 3000
 
   ###################################################
@@ -198,12 +201,13 @@ services:
   # This service aggregates logs from all containers.
   ###################################################
   loki:
-    image: grafana/loki:2.9.4
+    image: grafana/loki:3.4.2
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - todo-loki-data:/loki
     labels:
       traefik.http.routers.loki.rule: Host(`loki.localhost`)
+      traefik.http.routers.loki.priority: 200
       traefik.http.services.loki.loadbalancer.server.port: 3100
 
   ###################################################
@@ -212,7 +216,7 @@ services:
   # This service ships logs from Docker to Loki.
   ###################################################
   promtail:
-    image: grafana/promtail:2.9.4
+    image: grafana/promtail:3.4.2
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./loki/promtail-config.yml:/etc/promtail/config.yml
@@ -231,6 +235,7 @@ services:
       - COLLECTOR_OTLP_ENABLED=true
     labels:
       traefik.http.routers.jaeger.rule: Host(`jaeger.localhost`)
+      traefik.http.routers.jaeger.priority: 200
       traefik.http.services.jaeger.loadbalancer.server.port: 16686
 
 
