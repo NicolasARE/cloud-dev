@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LoginPage } from '@/application/components/LoginPage';
@@ -8,11 +9,9 @@ import { expect, describe, test, beforeEach } from '@jest/globals';
 // Mocks
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
-    ...(jest.requireActual('react-router-dom') as Record<string, unknown>),
+    ...(jest.requireActual('react-router-dom') as any),
     useNavigate: () => mockNavigate,
-    Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
-        <a href={to}>{children}</a>
-    ),
+    Link: ({ children, to }: any) => <a href={to}>{children}</a>,
 }));
 
 jest.mock('@/domain/utils/apiClient', () => ({
@@ -47,7 +46,7 @@ describe('LoginPage', () => {
             user: { id: '1', firstName: 'Nicolas', email: 'test@example.com' },
             token: 'fake-token',
         };
-        (apiClient.post as jest.Mock).mockResolvedValue(mockResponse);
+        (apiClient.post as any).mockResolvedValue(mockResponse);
 
         render(
             <BrowserRouter>
@@ -71,7 +70,7 @@ describe('LoginPage', () => {
     });
 
     test('doit afficher une erreur si la connexion échoue', async () => {
-        (apiClient.post as jest.Mock).mockRejectedValue(new Error('Identifiants incorrects'));
+        (apiClient.post as any).mockRejectedValue(new Error('Identifiants incorrects'));
 
         render(
             <BrowserRouter>
