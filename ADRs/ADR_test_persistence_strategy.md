@@ -8,7 +8,7 @@ Dans le cadre du développement de notre application TODO multi-utilisateur, nou
 Une question s'est posée quant à l'utilisation du même SGBD pour l'exécution de la suite de tests automatisés (Backend), ou l'utilisation d'une solution alternative plus légère.
 
 ## Décision
-Nous avons décidé de conserver **SQLite (in-memory)** comme moteur de persistance pour l'ensemble des tests unitaires et d'intégration, tout en maintenant MySQL pour la production.
+Nous avons décidé de conserver **SQLite (in-memory)** comme moteur de persistance pour l'ensemble des tests unitaires et d'intégration, tout en maintenant MySQL pour la production. 
 
 Le basculement entre les deux moteurs s'effectue dynamiquement au niveau de la couche d'abstraction de données (Persistence Layer) via une variable d'environnement (`MYSQL_HOST`).
 
