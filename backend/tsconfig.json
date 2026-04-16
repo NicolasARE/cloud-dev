@@ -9,7 +9,8 @@
     "skipLibCheck": true,
     "types": ["node", "jest"]
   },
-  "include": ["src/**/*", "spec/**/*"],
+  "include": ["src/**/*"],
+  "exclude": ["spec/**/*", "node_modules", "dist"],
   "ts-node": {
     "esm": true
   }

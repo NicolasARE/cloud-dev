@@ -2,20 +2,20 @@ import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 
 // Mocks
 const mockUserRepository = {
-    getUserByEmail: jest.fn(),
-    addUser: jest.fn(),
-    getUserById: jest.fn(),
-    updateUserPassword: jest.fn(),
-    deleteUser: jest.fn(),
+    getUserByEmail: jest.fn<any>(),
+    addUser: jest.fn<any>(),
+    getUserById: jest.fn<any>(),
+    updateUserPassword: jest.fn<any>(),
+    deleteUser: jest.fn<any>(),
 };
 
 const mockBcrypt = {
-    hash: jest.fn(),
-    compare: jest.fn(),
+    hash: jest.fn<any>(),
+    compare: jest.fn<any>(),
 };
 
 const mockJwt = {
-    sign: jest.fn(),
+    sign: jest.fn<any>(),
 };
 
 const mockUuid = {
