@@ -56,11 +56,11 @@ describe('TodoListCard', () => {
         expect(screen.getByText('Loading...')).toBeInTheDocument();
 
         // ACT
-        await screen.findByText('No items yet! Add one above!');
+        await screen.findByText("Pas d'items pour le moment, ajoutez en un ci-dessus !");
 
         // ASSERT
         expect(
-            screen.getByText('No items yet! Add one above!'),
+            screen.getByText("Pas d'items pour le moment, ajoutez en un ci-dessus !"),
         ).toBeInTheDocument();
     });
 
@@ -90,7 +90,7 @@ describe('TodoListCard', () => {
 
         // ASSERT + ACT
         expect(
-            await screen.findByText('No items yet! Add one above!'),
+            await screen.findByText("Pas d'items pour le moment, ajoutez en un ci-dessus !"),
         ).toBeInTheDocument();
     });
 

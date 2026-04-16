@@ -36,7 +36,6 @@ const httpRequestDurationMicroseconds = new promClient.Histogram({
 metricsRegistry.registerMetric(httpRequestDurationMicroseconds);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'static')));
 
 // Metrics middleware
 app.use((req, res, next) => {
@@ -73,6 +72,9 @@ app.get('/api/items', authenticateToken as any, getItems as any);
 app.post('/api/items', authenticateToken as any, addItem as any);
 app.put('/api/items/:id', authenticateToken as any, updateItem as any);
 app.delete('/api/items/:id', authenticateToken as any, deleteItem as any);
+
+app.use(express.static(path.join(__dirname, 'static')));
+
 
 db.init()
     .then(() => {
