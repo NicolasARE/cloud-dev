@@ -1,6 +1,6 @@
 import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 
-const mockLogin = jest.fn();
+const mockLogin = jest.fn<any>();
 
 jest.unstable_mockModule('../../../src/services/user.js', () => ({
     default: {

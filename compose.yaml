@@ -74,7 +74,8 @@ services:
       mysql:
         condition: service_healthy
     labels:
-      traefik.http.routers.backend.rule: PathPrefix(`/api`) || PathPrefix(`/metrics`)
+      traefik.http.routers.backend.rule: Host(`localhost`) && (PathPrefix(`/api`) || PathPrefix(`/metrics`))
+      traefik.http.routers.backend.priority: 10
       traefik.http.services.backend.loadbalancer.server.port: 3000
     develop:
       watch:
