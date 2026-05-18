@@ -1,8 +1,10 @@
 import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 
+import type { ToDoItem } from '../../../src/static/models/ToDoItem.js';
+
 // mock repository
-const deleteItemMock: any = jest.fn();
-const getItemMock: any = jest.fn();
+const deleteItemMock = jest.fn<(id: string) => Promise<void>>();
+const getItemMock = jest.fn<(id: string) => Promise<ToDoItem | undefined>>();
 
 jest.unstable_mockModule('../../../src/repositories/item', () => ({
     default: {
@@ -11,7 +13,8 @@ jest.unstable_mockModule('../../../src/repositories/item', () => ({
     },
 }));
 
-const { default: service } = await import('../../../src/services/item');
+const { default: service } =
+    await import('../../../src/services/item');
 
 describe('deleteItem', () => {
     beforeEach(() => {
@@ -23,7 +26,13 @@ describe('deleteItem', () => {
         const id = '12345';
         const userId = 'user-123';
 
-        getItemMock.mockResolvedValue({ id, userId });
+        getItemMock.mockResolvedValue({
+            id,
+            userId,
+            name: 'test',
+            completed: false,
+        });
+
         deleteItemMock.mockResolvedValue(undefined);
 
         // ACT
@@ -40,7 +49,12 @@ describe('deleteItem', () => {
         const userId = 'user-123';
         const otherUserId = 'other-user';
 
-        getItemMock.mockResolvedValue({ id, userId: otherUserId });
+        getItemMock.mockResolvedValue({
+            id,
+            userId: otherUserId,
+            name: 'test',
+            completed: false,
+        });
 
         // ACT + ASSERT
         await expect(service.deleteItem(id, userId)).rejects.toThrow(

@@ -5,8 +5,8 @@ import type {
 } from '../../../src/static/models/ToDoItem.js';
 
 // mocks repository
-const getItemMock: any = jest.fn();
-const updateItemMock: any = jest.fn();
+const getItemMock = jest.fn<(id: string) => Promise<ToDoItem | undefined>>();
+const updateItemMock = jest.fn<(id: string, item: ToDoItem) => Promise<void>>();
 
 jest.unstable_mockModule('../../../src/repositories/item', () => ({
     default: {
@@ -15,7 +15,8 @@ jest.unstable_mockModule('../../../src/repositories/item', () => ({
     },
 }));
 
-const { default: service } = await import('../../../src/services/item');
+const { default: service } =
+    await import('../../../src/services/item');
 
 describe('updateItem', () => {
     beforeEach(() => {
@@ -29,7 +30,7 @@ describe('updateItem', () => {
             id: '1234',
             name: 'ancien',
             completed: false,
-            userId: userId,
+            userId,
         };
 
         const input: ToDoItemDtoUpdate = {
@@ -44,7 +45,7 @@ describe('updateItem', () => {
             id: '1234',
             name: 'Nouveau titre',
             completed: true,
-            userId: userId,
+            userId,
         };
 
         // ACT
@@ -60,6 +61,7 @@ describe('updateItem', () => {
         // ARRANGE
         const userId = 'user-123';
         const otherUserId = 'other-user';
+
         const existing: ToDoItem = {
             id: '1234',
             name: 'ancien',
@@ -75,9 +77,9 @@ describe('updateItem', () => {
         };
 
         // ACT + ASSERT
-        await expect(service.updateItem('1234', input, userId)).rejects.toThrow(
-            'Item introuvable ou non autorisé',
-        );
+        await expect(
+            service.updateItem('1234', input, userId),
+        ).rejects.toThrow('Item introuvable ou non autorisé');
 
         expect(updateItemMock).not.toHaveBeenCalled();
     });
@@ -85,6 +87,7 @@ describe('updateItem', () => {
     test('échoue si item introuvable', async () => {
         // ARRANGE
         const userId = 'user-123';
+
         getItemMock.mockResolvedValue(undefined);
 
         const input: ToDoItemDtoUpdate = {
@@ -93,9 +96,9 @@ describe('updateItem', () => {
         };
 
         // ACT + ASSERT
-        await expect(service.updateItem('1234', input, userId)).rejects.toThrow(
-            'Item introuvable ou non autorisé',
-        );
+        await expect(
+            service.updateItem('1234', input, userId),
+        ).rejects.toThrow('Item introuvable ou non autorisé');
 
         expect(updateItemMock).not.toHaveBeenCalled();
     });
@@ -103,11 +106,12 @@ describe('updateItem', () => {
     test('échoue si nom vide', async () => {
         // ARRANGE
         const userId = 'user-123';
+
         const existing: ToDoItem = {
             id: '1234',
             name: 'ancien',
             completed: false,
-            userId: userId,
+            userId,
         };
 
         getItemMock.mockResolvedValue(existing);
@@ -118,9 +122,9 @@ describe('updateItem', () => {
         };
 
         // ACT + ASSERT
-        await expect(service.updateItem('1234', input, userId)).rejects.toThrow(
-            'Le nom est requis',
-        );
+        await expect(
+            service.updateItem('1234', input, userId),
+        ).rejects.toThrow('Le nom est requis');
 
         expect(updateItemMock).not.toHaveBeenCalled();
     });

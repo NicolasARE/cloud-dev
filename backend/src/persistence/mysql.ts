@@ -77,7 +77,7 @@ async function init(): Promise<void> {
                         // Migration: Add userId to todo_items if it doesn't exist
                         pool.query(
                             "SHOW COLUMNS FROM todo_items LIKE 'userId'",
-                            (err, rows: any[]) => {
+                            (err, rows: RowDataPacket[]) => {
                                 if (err) return reject(err);
                                 if (rows.length === 0) {
                                     pool.query(

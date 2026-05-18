@@ -1,28 +1,38 @@
 import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 
-// Mocks
-const mockUserRepository = {
-    getUserByEmail: jest.fn<any>(),
-    addUser: jest.fn<any>(),
-    getUserById: jest.fn<any>(),
-    updateUserPassword: jest.fn<any>(),
-    deleteUser: jest.fn<any>(),
+import type userRepository from '../../../src/repositories/user.js';
+import type { User } from '../../../src/static/models/User.js';
+import type jwt from 'jsonwebtoken';
+
+// =====================
+// TYPES MOCKS
+// =====================
+
+const mockUserRepository: jest.Mocked<typeof userRepository> = {
+    getUserByEmail: jest.fn(),
+    addUser: jest.fn(),
+    getUserById: jest.fn(),
+    updateUserPassword: jest.fn(),
+    deleteUser: jest.fn(),
 };
 
-const mockBcrypt = {
-    hash: jest.fn<any>(),
-    compare: jest.fn<any>(),
+const mockBcrypt: any = {
+    hash: jest.fn(),
+    compare: jest.fn(),
 };
 
 const mockJwt = {
-    sign: jest.fn<any>(),
-};
+    sign: jest.fn(),
+} as unknown as jest.Mocked<typeof jwt>;
 
 const mockUuid = {
     v4: () => 'uuid-123',
 };
 
-// ESM Mocks
+// =====================
+// MOCKS ESM
+// =====================
+
 jest.unstable_mockModule('../../../src/repositories/user', () => ({
     default: mockUserRepository,
 }));
@@ -39,6 +49,10 @@ jest.unstable_mockModule('uuid', () => mockUuid);
 
 const { default: userService } = await import('../../../src/services/user.js');
 
+// =====================
+// TESTS
+// =====================
+
 describe('UserService', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -53,20 +67,25 @@ describe('UserService', () => {
                 password: 'password123',
             };
 
-            mockUserRepository.getUserByEmail.mockResolvedValue(null);
+            mockUserRepository.getUserByEmail.mockResolvedValue(undefined);
             mockBcrypt.hash.mockResolvedValue('hashed-password');
             mockUserRepository.addUser.mockResolvedValue(undefined);
 
             const result = await userService.register(input);
 
-            expect(mockUserRepository.getUserByEmail).toHaveBeenCalledWith(input.email);
+            expect(mockUserRepository.getUserByEmail).toHaveBeenCalledWith(
+                input.email,
+            );
+
             expect(mockBcrypt.hash).toHaveBeenCalledWith(input.password, 10);
+
             expect(mockUserRepository.addUser).toHaveBeenCalledWith({
                 id: 'uuid-123',
                 firstName: input.firstName,
                 email: input.email,
                 passwordHash: 'hashed-password',
             });
+
             expect(result).toEqual({
                 id: 'uuid-123',
                 firstName: input.firstName,
@@ -74,14 +93,19 @@ describe('UserService', () => {
             });
         });
 
-        test('doit lever une erreur si l\'email existe déjà', async () => {
+        test("doit lever une erreur si l'email existe déjà", async () => {
             const input = {
                 firstName: 'Nicolas',
                 email: 'test@example.com',
                 password: 'password123',
             };
 
-            mockUserRepository.getUserByEmail.mockResolvedValue({ id: 'existing' });
+            mockUserRepository.getUserByEmail.mockResolvedValue({
+                id: 'existing',
+                firstName: 'x',
+                email: input.email,
+                password: 'hash',
+            } as User);
 
             await expect(userService.register(input)).rejects.toThrow(
                 'Un utilisateur avec cet email existe déjà',
@@ -95,6 +119,7 @@ describe('UserService', () => {
                 email: 'test@example.com',
                 password: 'password123',
             };
+
             const user = {
                 id: 'user-123',
                 firstName: 'Nicolas',
@@ -108,8 +133,13 @@ describe('UserService', () => {
 
             const result = await userService.login(input);
 
-            expect(mockBcrypt.compare).toHaveBeenCalledWith(input.password, user.password);
+            expect(mockBcrypt.compare).toHaveBeenCalledWith(
+                input.password,
+                user.password,
+            );
+
             expect(mockJwt.sign).toHaveBeenCalled();
+
             expect(result).toEqual({
                 user: {
                     id: user.id,
@@ -125,12 +155,13 @@ describe('UserService', () => {
                 email: 'test@example.com',
                 password: 'wrong-password',
             };
+
             const user = {
                 id: 'user-123',
                 password: 'hashed-password',
             };
 
-            mockUserRepository.getUserByEmail.mockResolvedValue(user);
+            mockUserRepository.getUserByEmail.mockResolvedValue(user as User | undefined);
             mockBcrypt.compare.mockResolvedValue(false);
 
             await expect(userService.login(input)).rejects.toThrow(
@@ -140,13 +171,19 @@ describe('UserService', () => {
     });
 
     describe('getProfile', () => {
-        test('doit retourner le profil de l\'utilisateur', async () => {
-            const user = { id: 'user-123', email: 'test@example.com' };
-            mockUserRepository.getUserById.mockResolvedValue(user);
+        test("doit retourner le profil de l'utilisateur", async () => {
+            const user = {
+                id: 'user-123',
+                email: 'test@example.com',
+            };
+
+            mockUserRepository.getUserById.mockResolvedValue(user as User);
 
             const result = await userService.getProfile('user-123');
 
-            expect(mockUserRepository.getUserById).toHaveBeenCalledWith('user-123');
+            expect(mockUserRepository.getUserById).toHaveBeenCalledWith(
+                'user-123',
+            );
             expect(result).toEqual(user);
         });
     });

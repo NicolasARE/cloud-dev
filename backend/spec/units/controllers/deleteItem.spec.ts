@@ -1,9 +1,9 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
-import type { Request } from 'express';
+import type { Response } from 'express';
+import type { AuthRequest } from '../../../src/middleware/auth.js';
 
-import type { ToDoItemDtoId } from '../../../src/static/models/ToDoItem.js';
-
-const mockDeleteItem = jest.fn<(id: string, userId: string) => Promise<void>>();
+const mockDeleteItem =
+    jest.fn<(id: string, userId: string) => Promise<void>>();
 
 jest.unstable_mockModule('../../../src/services/item.js', () => ({
     default: {
@@ -23,16 +23,19 @@ describe('deleteItem route', () => {
         // ARRANGE
         const userId = 'user-123';
         const itemId = '12345';
+
+        const sendStatusMock = jest.fn();
+
         const request = {
             params: { id: itemId },
             user: { id: userId },
-        } as any;
+        } as unknown as AuthRequest;
 
         const res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
-            sendStatus: jest.fn(),
-        } as any;
+            sendStatus: sendStatusMock,
+        } as unknown as Response;
 
         // ACT
         await deleteItem(request, res);
@@ -41,6 +44,6 @@ describe('deleteItem route', () => {
         expect(mockDeleteItem).toHaveBeenCalledTimes(1);
         expect(mockDeleteItem).toHaveBeenCalledWith(itemId, userId);
 
-        expect(res.sendStatus).toHaveBeenCalledWith(204);
+        expect(sendStatusMock).toHaveBeenCalledWith(204);
     });
 });

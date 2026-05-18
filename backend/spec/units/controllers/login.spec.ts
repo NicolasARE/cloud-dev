@@ -1,6 +1,10 @@
 import { jest, describe, test, expect, beforeEach } from '@jest/globals';
+import type { Response } from 'express';
+import type { Request } from 'express';
 
-const mockLogin = jest.fn<any>();
+const mockLogin = jest.fn<
+    (input: { email: string; password: string }) => Promise<{ user: { id: string; email: string }; token: string }>
+>();
 
 jest.unstable_mockModule('../../../src/services/user.js', () => ({
     default: {
@@ -8,11 +12,12 @@ jest.unstable_mockModule('../../../src/services/user.js', () => ({
     },
 }));
 
-const { default: loginController } = await import('../../../src/controllers/login.js');
+const { default: loginController } =
+    await import('../../../src/controllers/login.js');
 
 describe('login controller', () => {
-    let req: any;
-    let res: any;
+    let req: Request;
+    let res: Response;
 
     beforeEach(() => {
         req = {
@@ -20,12 +25,14 @@ describe('login controller', () => {
                 email: 'test@example.com',
                 password: 'password123',
             },
-        };
+        } as unknown as Request;
+
         res = {
             status: jest.fn().mockReturnThis(),
-            send: jest.fn().mockReturnThis(),
-            json: jest.fn().mockReturnThis(),
-        };
+            send: jest.fn(),
+            json: jest.fn(),
+        } as unknown as Response;
+
         jest.clearAllMocks();
     });
 
@@ -34,6 +41,7 @@ describe('login controller', () => {
             user: { id: 'user-123', email: 'test@example.com' },
             token: 'jwt-token',
         };
+
         mockLogin.mockResolvedValue(loginResult);
 
         await loginController(req, res);
@@ -44,11 +52,15 @@ describe('login controller', () => {
     });
 
     test('doit retourner 401 si le service lève une erreur', async () => {
-        mockLogin.mockRejectedValue(new Error('Email ou mot de passe incorrect'));
+        mockLogin.mockRejectedValue(
+            new Error('Email ou mot de passe incorrect'),
+        );
 
         await loginController(req, res);
 
         expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: 'Email ou mot de passe incorrect' });
+        expect(res.json).toHaveBeenCalledWith({
+            message: 'Email ou mot de passe incorrect',
+        });
     });
 });
