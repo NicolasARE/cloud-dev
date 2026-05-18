@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload, VerifyErrors } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -22,13 +22,13 @@ export const authenticateToken = (
         return res.status(401).json({ message: 'Authentication required' });
     }
 
-    jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+    jwt.verify(token, JWT_SECRET, (err: VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
         if (err) {
             return res
                 .status(403)
                 .json({ message: 'Invalid or expired token' });
         }
-        req.user = user;
+        req.user = decoded as { id: string; email: string };
         next();
     });
 };

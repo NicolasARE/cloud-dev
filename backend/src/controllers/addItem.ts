@@ -1,7 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.js';
 import itemService from '../services/item.js';
-import type { ToDoItemDtoAdd } from '../static/models/ToDoItem.js';
 
 const addItem = async (req: AuthRequest, res: Response): Promise<void> => {
     try {

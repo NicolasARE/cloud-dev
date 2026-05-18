@@ -63,7 +63,7 @@ function init(): Promise<void> {
     // Migration: Add userId to todo_items if it doesn't exist
     try {
         db.prepare('ALTER TABLE todo_items ADD COLUMN userId TEXT').run();
-    } catch (e: any) {
+    } catch {
         // Column already exists or table doesn't exist yet
     }
 
@@ -138,7 +138,7 @@ function addUser(user: User & { passwordHash?: string }): Promise<void> {
 
 function getUserByEmail(email: string): Promise<User | undefined> {
     const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
-    const row = stmt.get(email) as any;
+    const row = stmt.get(email) as UserRow | undefined;
     if (!row) return Promise.resolve(undefined);
     return Promise.resolve({
         id: row.id,
@@ -150,7 +150,7 @@ function getUserByEmail(email: string): Promise<User | undefined> {
 
 function getUserById(id: string): Promise<User | undefined> {
     const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
-    const row = stmt.get(id) as any;
+    const row = stmt.get(id) as UserRow | undefined;
     if (!row) return Promise.resolve(undefined);
     return Promise.resolve({
         id: row.id,

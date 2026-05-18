@@ -63,16 +63,16 @@ app.post('/api/auth/register', register);
 app.post('/api/auth/login', login);
 
 // Profile Routes (Protected)
-app.get('/api/auth/profile', authenticateToken as any, getProfile as any);
-app.put('/api/auth/password', authenticateToken as any, changePassword as any);
-app.delete('/api/auth/account', authenticateToken as any, deleteAccount as any);
+app.get('/api/auth/profile', authenticateToken, getProfile);
+app.put('/api/auth/password', authenticateToken, changePassword);
+app.delete('/api/auth/account', authenticateToken, deleteAccount);
 
 // Item Routes (Protected)
-app.get('/api/items', authenticateToken as any, getItems as any);
-app.post('/api/items', authenticateToken as any, addItem as any);
-app.put('/api/items/:id', authenticateToken as any, updateItem as any);
-app.delete('/api/items/:id', authenticateToken as any, deleteItem as any);
 
+app.get('/api/items', authenticateToken, getItems);
+app.post('/api/items', authenticateToken, addItem);
+app.put('/api/items/:id', authenticateToken, updateItem);
+app.delete('/api/items/:id', authenticateToken, deleteItem);
 app.use(express.static(path.join(__dirname, 'static')));
 
 
