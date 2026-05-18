@@ -1,18 +1,19 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
+import type { Response } from 'express';
+import type { AuthRequest } from '../../../src/middleware/auth.js';
+
 import type {
     ToDoItem,
-    ToDoItemDtoId,
     ToDoItemDtoUpdate,
 } from '../../../src/static/models/ToDoItem.js';
 
-const mockUpdateItem =
-    jest.fn<
-        (
-            id: string,
-            input: ToDoItemDtoUpdate,
-            userId: string,
-        ) => Promise<ToDoItem>
-    >();
+const mockUpdateItem = jest.fn<
+    (
+        id: string,
+        input: ToDoItemDtoUpdate,
+        userId: string,
+    ) => Promise<ToDoItem>
+>();
 
 jest.unstable_mockModule('../../../src/services/item.js', () => ({
     default: {
@@ -32,21 +33,11 @@ describe('updateItem route', () => {
         // ARRANGE
         const userId = 'user-123';
         const itemId = '1234';
+
         const itemUpdate: ToDoItemDtoUpdate = {
             name: 'Nouveau titre',
             completed: true,
         };
-
-        const req = {
-            params: { id: itemId },
-            body: itemUpdate,
-            user: { id: userId },
-        } as any;
-
-        const res = {
-            status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
-        } as any;
 
         const expectedItem: ToDoItem = {
             id: itemId,
@@ -55,6 +46,19 @@ describe('updateItem route', () => {
             userId: userId,
         };
 
+        const sendMock = jest.fn();
+
+        const req = {
+            params: { id: itemId },
+            body: itemUpdate,
+            user: { id: userId },
+        } as unknown as AuthRequest;
+
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            send: sendMock,
+        } as unknown as Response;
+
         mockUpdateItem.mockResolvedValue(expectedItem);
 
         // ACT
@@ -62,23 +66,32 @@ describe('updateItem route', () => {
 
         // ASSERT
         expect(mockUpdateItem).toHaveBeenCalledTimes(1);
-        expect(mockUpdateItem).toHaveBeenCalledWith(itemId, itemUpdate, userId);
-        expect(res.send).toHaveBeenCalledWith(expectedItem);
+        expect(mockUpdateItem).toHaveBeenCalledWith(
+            itemId,
+            itemUpdate,
+            userId,
+        );
+
+        expect(sendMock).toHaveBeenCalledWith(expectedItem);
     });
 
     test('retourne 404 quand item introuvable ou non autorisé', async () => {
         // ARRANGE
         const userId = 'user-123';
+
+        const sendMock = jest.fn();
+        const statusMock = jest.fn().mockReturnThis();
+
         const req = {
             params: { id: '1234' },
             body: { name: 'test' },
             user: { id: userId },
-        } as any;
+        } as unknown as AuthRequest;
 
         const res = {
-            status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
-        } as any;
+            status: statusMock,
+            send: sendMock,
+        } as unknown as Response;
 
         mockUpdateItem.mockRejectedValue(
             new Error('Item introuvable ou non autorisé'),
@@ -88,8 +101,8 @@ describe('updateItem route', () => {
         await updateItem(req, res);
 
         // ASSERT
-        expect(res.status).toHaveBeenCalledWith(404);
-        expect(res.send).toHaveBeenCalledWith(
+        expect(statusMock).toHaveBeenCalledWith(404);
+        expect(sendMock).toHaveBeenCalledWith(
             'Item introuvable ou non autorisé',
         );
     });
@@ -97,16 +110,20 @@ describe('updateItem route', () => {
     test('retourne 400 quand le nom est requis', async () => {
         // ARRANGE
         const userId = 'user-123';
+
+        const sendMock = jest.fn();
+        const statusMock = jest.fn().mockReturnThis();
+
         const req = {
             params: { id: '1234' },
             body: { name: '' },
             user: { id: userId },
-        } as any;
+        } as unknown as AuthRequest;
 
         const res = {
-            status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
-        } as any;
+            status: statusMock,
+            send: sendMock,
+        } as unknown as Response;
 
         mockUpdateItem.mockRejectedValue(new Error('Le nom est requis'));
 
@@ -114,7 +131,7 @@ describe('updateItem route', () => {
         await updateItem(req, res);
 
         // ASSERT
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.send).toHaveBeenCalledWith('Le nom est requis');
+        expect(statusMock).toHaveBeenCalledWith(400);
+        expect(sendMock).toHaveBeenCalledWith('Le nom est requis');
     });
 });

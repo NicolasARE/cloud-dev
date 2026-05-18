@@ -1,5 +1,7 @@
 import { jest, describe, beforeEach, test, expect } from '@jest/globals';
-import type { Request } from 'express';
+import type { Response } from 'express';
+import type { AuthRequest } from '../../../src/middleware/auth.js';
+
 import type {
     ToDoItem,
     ToDoItemDtoAdd,
@@ -7,6 +9,7 @@ import type {
 
 const mockAddItem =
     jest.fn<(input: ToDoItemDtoAdd, userId: string) => Promise<ToDoItem>>();
+
 const mockUuid = jest.fn();
 
 jest.unstable_mockModule('uuid', () => ({
@@ -30,22 +33,27 @@ describe('addItem route', () => {
     test("il stocke l'élément correctement", async () => {
         // ARRANGE
         const userId = 'user-123';
+
         const expectedItem: ToDoItem = {
             id: '7aef3d7c-d301-4846-8358-2a91ec9d6be3',
             name: "Un élément d'exemple",
             completed: false,
             userId: userId,
         };
+
+        const sendMock = jest.fn();
+        const statusMock = jest.fn().mockReturnThis();
+
         const request = {
-            body: { name: expectedItem.name },
+            body: { name: expectedItem.name } as ToDoItemDtoAdd,
             user: { id: userId },
-        } as any;
+        } as unknown as AuthRequest;
 
         const res = {
-            status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
+            status: statusMock,
+            send: sendMock,
             json: jest.fn(),
-        } as any;
+        } as unknown as Response;
 
         mockAddItem.mockResolvedValue(expectedItem);
 
@@ -56,23 +64,27 @@ describe('addItem route', () => {
         expect(mockAddItem).toHaveBeenCalledTimes(1);
         expect(mockAddItem).toHaveBeenCalledWith(request.body, userId);
 
-        expect(res.status).toHaveBeenCalledWith(201);
-        expect(res.send).toHaveBeenCalledWith(expectedItem);
+        expect(statusMock).toHaveBeenCalledWith(201);
+        expect(sendMock).toHaveBeenCalledWith(expectedItem);
     });
 
     test('retourne 400 quand le nom est manquant', async () => {
         // ARRANGE
         const userId = 'user-123';
+
+        const sendMock = jest.fn();
+        const statusMock = jest.fn().mockReturnThis();
+
         const request = {
             body: {},
             user: { id: userId },
-        } as any;
+        } as unknown as AuthRequest;
 
         const res = {
-            status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
+            status: statusMock,
+            send: sendMock,
             json: jest.fn(),
-        } as any;
+        } as unknown as Response;
 
         mockAddItem.mockRejectedValue(new Error('Le nom est requis'));
 
@@ -80,8 +92,8 @@ describe('addItem route', () => {
         await addItem(request, res);
 
         // ASSERT
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.send).toHaveBeenCalledWith('Le nom est requis');
+        expect(statusMock).toHaveBeenCalledWith(400);
+        expect(sendMock).toHaveBeenCalledWith('Le nom est requis');
 
         expect(mockAddItem).toHaveBeenCalled();
     });
@@ -89,16 +101,20 @@ describe('addItem route', () => {
     test('retourne 400 quand le nom est vide', async () => {
         // ARRANGE
         const userId = 'user-123';
+
+        const sendMock = jest.fn();
+        const statusMock = jest.fn().mockReturnThis();
+
         const request = {
             body: { name: ' ' },
             user: { id: userId },
-        } as any;
+        } as unknown as AuthRequest;
 
         const res = {
-            status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
+            status: statusMock,
+            send: sendMock,
             json: jest.fn(),
-        } as any;
+        } as unknown as Response;
 
         mockAddItem.mockRejectedValue(new Error('Le nom est requis'));
 
@@ -106,8 +122,8 @@ describe('addItem route', () => {
         await addItem(request, res);
 
         // ASSERT
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.send).toHaveBeenCalledWith('Le nom est requis');
+        expect(statusMock).toHaveBeenCalledWith(400);
+        expect(sendMock).toHaveBeenCalledWith('Le nom est requis');
 
         expect(mockAddItem).toHaveBeenCalled();
     });

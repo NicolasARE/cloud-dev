@@ -1,7 +1,8 @@
 import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 import type { ToDoItem } from '../../../src/static/models/ToDoItem.js';
 
-const getItemsMock: any = jest.fn();
+// mock repository
+const getItemsMock = jest.fn<(userId: string) => Promise<ToDoItem[]>>();
 
 jest.unstable_mockModule('../../../src/repositories/item', () => ({
     default: {
@@ -9,7 +10,8 @@ jest.unstable_mockModule('../../../src/repositories/item', () => ({
     },
 }));
 
-const { default: service } = await import('../../../src/services/item');
+const { default: service } =
+    await import('../../../src/services/item');
 
 describe('getItems', () => {
     beforeEach(() => {
@@ -20,8 +22,8 @@ describe('getItems', () => {
         // ARRANGE
         const userId = 'user-123';
         const items: ToDoItem[] = [
-            { id: '1', name: 'Item 1', completed: false, userId: userId },
-            { id: '2', name: 'Item 2', completed: true, userId: userId },
+            { id: '1', name: 'Item 1', completed: false, userId },
+            { id: '2', name: 'Item 2', completed: true, userId },
         ];
 
         getItemsMock.mockResolvedValue(items);
@@ -38,6 +40,7 @@ describe('getItems', () => {
     test('propage une erreur du repository', async () => {
         // ARRANGE
         const userId = 'user-123';
+
         getItemsMock.mockRejectedValue(new Error('DB error'));
 
         // ACT + ASSERT
