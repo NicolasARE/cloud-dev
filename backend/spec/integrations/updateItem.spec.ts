@@ -9,6 +9,9 @@ import {
 import fs from 'fs';
 import path from 'path';
 
+import type { Response } from 'express';
+import type { AuthRequest } from '../../src/middleware/auth.js';
+
 import db from '../../src/persistence/sqlite.js';
 import updateItemController from '../../src/controllers/updateItem.js';
 import type { ToDoItem } from '../../src/static/models/ToDoItem.js';
@@ -50,7 +53,10 @@ describe('integration controller updateItem', () => {
             firstName: 'Test',
             email: 'test@example.com',
         });
+
         await db.addItem(ITEM);
+
+        const sendMock = jest.fn();
 
         const req = {
             params: {
@@ -61,18 +67,18 @@ describe('integration controller updateItem', () => {
                 completed: true,
             },
             user: { id: USER_ID },
-        } as any;
+        } as unknown as AuthRequest;
 
         const res = {
-            send: jest.fn(),
+            send: sendMock,
             status: jest.fn().mockReturnThis(),
-        } as any;
+        } as unknown as Response;
 
         // ACT
         await updateItemController(req, res);
 
         // ASSERT HTTP
-        expect(res.send).toHaveBeenCalledWith(
+        expect(sendMock).toHaveBeenCalledWith(
             expect.objectContaining({
                 id: ITEM.id,
                 name: 'Updated name',
@@ -85,6 +91,7 @@ describe('integration controller updateItem', () => {
         const items = await db.getItems(USER_ID);
 
         expect(items).toHaveLength(1);
+
         expect(items[0]).toMatchObject({
             id: ITEM.id,
             name: 'Updated name',
@@ -94,6 +101,8 @@ describe('integration controller updateItem', () => {
     });
 
     test('retourne 404 si item introuvable ou non autorisé', async () => {
+        const sendMock = jest.fn();
+
         const req = {
             params: {
                 id: 'does-not-exist',
@@ -102,19 +111,19 @@ describe('integration controller updateItem', () => {
                 name: 'New name',
             },
             user: { id: USER_ID },
-        } as any;
+        } as unknown as AuthRequest;
 
         const res = {
             status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
-        } as any;
+            send: sendMock,
+        } as unknown as Response;
 
         // ACT
         await updateItemController(req, res);
 
         // ASSERT HTTP
         expect(res.status).toHaveBeenCalledWith(404);
-        expect(res.send).toHaveBeenCalledWith(
+        expect(sendMock).toHaveBeenCalledWith(
             'Item introuvable ou non autorisé',
         );
 
@@ -130,7 +139,10 @@ describe('integration controller updateItem', () => {
             firstName: 'Test',
             email: 'test@example.com',
         });
+
         await db.addItem(ITEM);
+
+        const sendMock = jest.fn();
 
         const req = {
             params: {
@@ -140,19 +152,19 @@ describe('integration controller updateItem', () => {
                 name: ' ',
             },
             user: { id: USER_ID },
-        } as any;
+        } as unknown as AuthRequest;
 
         const res = {
             status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
-        } as any;
+            send: sendMock,
+        } as unknown as Response;
 
         // ACT
         await updateItemController(req, res);
 
         // ASSERT HTTP
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.send).toHaveBeenCalledWith('Le nom est requis');
+        expect(sendMock).toHaveBeenCalledWith('Le nom est requis');
 
         // ASSERT DB (non modifiée)
         const items = await db.getItems(USER_ID);
