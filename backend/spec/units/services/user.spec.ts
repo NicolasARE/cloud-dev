@@ -2,7 +2,6 @@ import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 
 import type userRepository from '../../../src/repositories/user.js';
 import type { User } from '../../../src/static/models/User.js';
-import type jwt from 'jsonwebtoken';
 
 // =====================
 // TYPES MOCKS
@@ -16,14 +15,25 @@ const mockUserRepository: jest.Mocked<typeof userRepository> = {
     deleteUser: jest.fn(),
 };
 
-const mockBcrypt: any = {
-    hash: jest.fn(),
-    compare: jest.fn(),
+const mockBcrypt = {
+    hash: jest.fn() as jest.MockedFunction<
+        (password: string, salt: number) => Promise<string>
+    >,
+
+    compare: jest.fn() as jest.MockedFunction<
+        (password: string, hash: string) => Promise<boolean>
+    >,
 };
 
 const mockJwt = {
-    sign: jest.fn(),
-} as unknown as jest.Mocked<typeof jwt>;
+    sign: jest.fn() as jest.MockedFunction<
+        (
+            payload: object,
+            secret: string,
+            options?: object,
+        ) => string
+    >,
+};
 
 const mockUuid = {
     v4: () => 'uuid-123',
