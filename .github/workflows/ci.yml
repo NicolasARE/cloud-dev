@@ -93,6 +93,16 @@ jobs:
           cd backend
           npm install
 
+      - name: Lint
+        run: |
+          cd backend
+          npm run lint
+
+      - name: Build
+        run: |
+          cd backend
+          npm run build
+
       - name: Unit tests
         run: |
           cd backend
