@@ -79,40 +79,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Cache backend deps
-        uses: actions/cache@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          path: backend/node_modules
-          key: backend-${{ hashFiles('backend/package-lock.json') }}
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
 
       - name: Install deps
-        run: |
-          cd backend
-          npm install
+        run: cd backend && npm ci
 
       - name: Lint
-        run: |
-          cd backend
-          npm run lint
+        run: cd backend && npm run lint
 
       - name: Build
-        run: |
-          cd backend
-          npm run build
+        run: cd backend && npm run build
 
       - name: Unit tests
-        run: |
-          cd backend
-          npm test
+        run: cd backend && npm test
 
       - name: Integration tests
-        if: github.event_name == 'pull_request' 
-        run: |
-          cd backend
-          npm test integrations
+        if: github.event_name == 'pull_request'
+        run: cd backend && npm test integrations
 
 
   auth:
@@ -121,40 +111,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Cache auth deps
-        uses: actions/cache@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          path: auth/node_modules
-          key: auth-${{ hashFiles('auth/package-lock.json') }}
+          node-version: 20
+          cache: npm
+          cache-dependency-path: auth/package-lock.json
 
       - name: Install deps
-        run: |
-          cd auth
-          npm install
+        run: cd auth && npm ci
 
       - name: Lint
-        run: |
-          cd auth
-          npm run lint
+        run: cd auth && npm run lint
 
       - name: Build
-        run: |
-          cd auth
-          npm run build
+        run: cd auth && npm run build
 
       - name: Unit tests
-        run: |
-          cd auth
-          npm test
+        run: cd auth && npm test
 
       - name: Integration tests
-        if: github.event_name == 'pull_request' 
-        run: |
-          cd auth
-          npm test integrations
+        if: github.event_name == 'pull_request'
+        run: cd auth && npm test integrations
 
 
   docker-client:
