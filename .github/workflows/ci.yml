@@ -15,6 +15,7 @@ jobs:
     outputs:
       client: ${{ steps.filter.outputs.client }}
       backend: ${{ steps.filter.outputs.backend }}
+      auth: ${{ steps.filter.outputs.auth }}
 
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +30,8 @@ jobs:
               - 'client/**'
             backend:
               - 'backend/**'
+            auth:
+              - 'auth/**'
           token: ${{ secrets.GITHUB_TOKEN }}
 
   client:
