@@ -48,12 +48,6 @@ afterEach(async () => {
 describe('integration controller updateItem', () => {
     test('met à jour un item existant et retourne l’item modifié', async () => {
         // ARRANGE
-        await db.addUser({
-            id: USER_ID,
-            firstName: 'Test',
-            email: 'test@example.com',
-        });
-
         await db.addItem(ITEM);
 
         const sendMock = jest.fn();
@@ -134,12 +128,6 @@ describe('integration controller updateItem', () => {
     });
 
     test('retourne 400 si le nom est invalide', async () => {
-        await db.addUser({
-            id: USER_ID,
-            firstName: 'Test',
-            email: 'test@example.com',
-        });
-
         await db.addItem(ITEM);
 
         const sendMock = jest.fn();

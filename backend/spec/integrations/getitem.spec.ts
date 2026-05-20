@@ -48,12 +48,6 @@ afterEach(async () => {
 describe('integration controller getItems', () => {
     test("retourne les items depuis la vraie DB pour l'utilisateur authentifié", async () => {
         // ARRANGE
-        await db.addUser({
-            id: USER_ID,
-            firstName: 'Test',
-            email: 'test@example.com',
-        });
-
         await db.addItem(ITEM);
 
         const sendMock = jest.fn();

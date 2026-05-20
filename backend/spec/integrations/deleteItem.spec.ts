@@ -48,12 +48,6 @@ afterEach(async () => {
 describe('integration controller deleteItem', () => {
     test('supprime un item existant et retourne 204', async () => {
         // ARRANGE
-        await db.addUser({
-            id: USER_ID,
-            firstName: 'Test',
-            email: 'test@example.com',
-        });
-
         await db.addItem(ITEM);
 
         const sendStatusMock = jest.fn();
