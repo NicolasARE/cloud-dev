@@ -66,6 +66,7 @@ services:
       - auth_node_modules:/usr/local/app/node_modules
     labels:
       traefik.http.routers.auth.rule: Host(`localhost`) && PathPrefix(`/api/auth`)
+      traefik.http.routers.auth.priority: 110
       traefik.http.services.auth.loadbalancer.server.port: 3001
 
   ###################################################
@@ -109,6 +110,7 @@ services:
       - backend_node_modules:/usr/local/app/node_modules
     labels:
       traefik.http.routers.backend.rule: Host(`localhost`) && PathPrefix(`/api`)
+      traefik.http.routers.backend.priority: 100
       traefik.http.services.backend.loadbalancer.server.port: 3000
 
   ###################################################
