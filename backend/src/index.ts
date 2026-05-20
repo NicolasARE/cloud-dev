@@ -11,11 +11,6 @@ import getItems from './controllers/getItems.js';
 import addItem from './controllers/addItem.js';
 import updateItem from './controllers/updateItem.js';
 import deleteItem from './controllers/deleteItem.js';
-import register from './controllers/register.js';
-import login from './controllers/login.js';
-import getProfile from './controllers/getProfile.js';
-import changePassword from './controllers/changePassword.js';
-import deleteAccount from './controllers/deleteAccount.js';
 import { authenticateToken } from './middleware/auth.js';
 
 const app: Application = express();
@@ -58,14 +53,14 @@ app.get('/metrics', async (req, res) => {
 
 app.get('/api/greeting', getGreeting);
 
-// Auth Routes
-app.post('/api/auth/register', register);
-app.post('/api/auth/login', login);
+// // Auth Routes
+// app.post('/api/auth/register', register);
+// app.post('/api/auth/login', login);
 
-// Profile Routes (Protected)
-app.get('/api/auth/profile', authenticateToken, getProfile);
-app.put('/api/auth/password', authenticateToken, changePassword);
-app.delete('/api/auth/account', authenticateToken, deleteAccount);
+// // Profile Routes (Protected)
+// app.get('/api/auth/profile', authenticateToken, getProfile);
+// app.put('/api/auth/password', authenticateToken, changePassword);
+// app.delete('/api/auth/account', authenticateToken, deleteAccount);
 
 // Item Routes (Protected)
 

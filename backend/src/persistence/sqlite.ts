@@ -4,7 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import type { ToDoItem } from '../static/models/ToDoItem.js';
-import type { User } from '../static/models/User.js';
 import type { Database as DatabaseInterface } from '../static/models/Database.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -18,13 +17,6 @@ type DbRow = {
     name: string;
     completed: number;
     userId: string;
-};
-
-type UserRow = {
-    id: string;
-    firstName: string;
-    email: string;
-    passwordHash: string;
 };
 
 function init(): Promise<void> {
@@ -126,59 +118,6 @@ function updateItem(id: string, item: ToDoItem): Promise<void> {
     return Promise.resolve();
 }
 
-// User Methods
-function addUser(user: User & { passwordHash?: string }): Promise<void> {
-    const stmt = db.prepare(`
-    INSERT INTO users (id, firstName, email, passwordHash)
-    VALUES (?, ?, ?, ?)
-  `);
-    stmt.run(user.id, user.firstName, user.email, user.passwordHash);
-    return Promise.resolve();
-}
-
-function getUserByEmail(email: string): Promise<User | undefined> {
-    const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
-    const row = stmt.get(email) as UserRow | undefined;
-    if (!row) return Promise.resolve(undefined);
-    return Promise.resolve({
-        id: row.id,
-        firstName: row.firstName,
-        email: row.email,
-        password: row.passwordHash,
-    });
-}
-
-function getUserById(id: string): Promise<User | undefined> {
-    const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
-    const row = stmt.get(id) as UserRow | undefined;
-    if (!row) return Promise.resolve(undefined);
-    return Promise.resolve({
-        id: row.id,
-        firstName: row.firstName,
-        email: row.email,
-    });
-}
-
-function updateUserPassword(id: string, passwordHash: string): Promise<void> {
-    const stmt = db.prepare('UPDATE users SET passwordHash = ? WHERE id = ?');
-    stmt.run(passwordHash, id);
-    return Promise.resolve();
-}
-
-function deleteUser(id: string): Promise<void> {
-    // SQLite doesn't always have FK enabled by default, so we might need to delete items manually
-    // But let's assume cascade works if we enable it or just delete manually to be safe
-    const deleteItems = db.prepare('DELETE FROM todo_items WHERE userId = ?');
-    const deleteUser = db.prepare('DELETE FROM users WHERE id = ?');
-
-    db.transaction(() => {
-        deleteItems.run(id);
-        deleteUser.run(id);
-    })();
-
-    return Promise.resolve();
-}
-
 function removeItem(id: string): Promise<void> {
     const stmt = db.prepare(`
     DELETE FROM todo_items WHERE id = ?
@@ -189,7 +128,7 @@ function removeItem(id: string): Promise<void> {
     return Promise.resolve();
 }
 
-// 🔥 Export typé (compatible MySQL interface)
+// Export typé (compatible MySQL interface)
 const sqliteDb: DatabaseInterface = {
     init,
     teardown,
@@ -198,11 +137,6 @@ const sqliteDb: DatabaseInterface = {
     addItem,
     updateItem,
     removeItem,
-    addUser,
-    getUserByEmail,
-    getUserById,
-    updateUserPassword,
-    deleteUser,
 };
 
 export default sqliteDb;

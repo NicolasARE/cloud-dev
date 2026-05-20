@@ -1,3 +1,7 @@
+/**
+ * MIDDLEWARE COMMUN A TOUS LES SERVICES BACKENDs
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload, VerifyErrors } from 'jsonwebtoken';
 

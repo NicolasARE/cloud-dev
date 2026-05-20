@@ -3,7 +3,6 @@ import fs from 'fs';
 import mysql, { Pool, RowDataPacket } from 'mysql2';
 
 import type { ToDoItem } from '../static/models/ToDoItem.js';
-import type { User } from '../static/models/User.js';
 import type { Database } from '../static/models/Database.js';
 
 const {
@@ -24,13 +23,6 @@ type DbRow = RowDataPacket & {
     name: string;
     completed: number;
     userId: string;
-};
-
-type UserRow = RowDataPacket & {
-    id: string;
-    firstName: string;
-    email: string;
-    passwordHash: string;
 };
 
 function readValue(value?: string, file?: string): string {
@@ -193,81 +185,6 @@ function removeItem(id: string): Promise<void> {
     });
 }
 
-// User Methods
-function addUser(user: User & { passwordHash?: string }): Promise<void> {
-    return new Promise((resolve, reject) => {
-        pool.query(
-            'INSERT INTO users (id, firstName, email, passwordHash) VALUES (?, ?, ?, ?)',
-            [user.id, user.firstName, user.email, user.passwordHash],
-            (err) => {
-                if (err) return reject(err);
-                resolve();
-            },
-        );
-    });
-}
-
-function getUserByEmail(email: string): Promise<User | undefined> {
-    return new Promise((resolve, reject) => {
-        pool.query<UserRow[]>(
-            'SELECT * FROM users WHERE email = ?',
-            [email],
-            (err, rows) => {
-                if (err) return reject(err);
-                if (rows.length === 0) return resolve(undefined);
-                const row = rows[0];
-                resolve({
-                    id: row.id,
-                    firstName: row.firstName,
-                    email: row.email,
-                    password: row.passwordHash,
-                });
-            },
-        );
-    });
-}
-
-function getUserById(id: string): Promise<User | undefined> {
-    return new Promise((resolve, reject) => {
-        pool.query<UserRow[]>(
-            'SELECT * FROM users WHERE id = ?',
-            [id],
-            (err, rows) => {
-                if (err) return reject(err);
-                if (rows.length === 0) return resolve(undefined);
-                const row = rows[0];
-                resolve({
-                    id: row.id,
-                    firstName: row.firstName,
-                    email: row.email,
-                });
-            },
-        );
-    });
-}
-
-function updateUserPassword(id: string, passwordHash: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        pool.query(
-            'UPDATE users SET passwordHash = ? WHERE id = ?',
-            [passwordHash, id],
-            (err) => {
-                if (err) return reject(err);
-                resolve();
-            },
-        );
-    });
-}
-
-function deleteUser(id: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        pool.query('DELETE FROM users WHERE id = ?', [id], (err) => {
-            if (err) return reject(err);
-            resolve();
-        });
-    });
-}
-
 const db: Database = {
     init,
     teardown,
@@ -276,11 +193,6 @@ const db: Database = {
     addItem,
     updateItem,
     removeItem,
-    addUser,
-    getUserByEmail,
-    getUserById,
-    updateUserPassword,
-    deleteUser,
 };
 
 export default db;
