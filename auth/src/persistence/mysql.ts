@@ -60,38 +60,7 @@ async function init(): Promise<void> {
             'CREATE TABLE IF NOT EXISTS users (id varchar(36) PRIMARY KEY, firstName varchar(255), email varchar(255) UNIQUE, passwordHash varchar(255)) DEFAULT CHARSET utf8mb4',
             (err) => {
                 if (err) return reject(err);
-
-                pool.query(
-                    'CREATE TABLE IF NOT EXISTS todo_items (id varchar(36) PRIMARY KEY, name varchar(255), completed boolean, userId varchar(36), FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE) DEFAULT CHARSET utf8mb4',
-                    (err) => {
-                        if (err) return reject(err);
-
-                        // Migration: Add userId to todo_items if it doesn't exist
-                        pool.query(
-                            "SHOW COLUMNS FROM todo_items LIKE 'userId'",
-                            (err, rows: RowDataPacket[]) => {
-                                if (err) return reject(err);
-                                if (rows.length === 0) {
-                                    pool.query(
-                                        'ALTER TABLE todo_items ADD COLUMN userId varchar(36)',
-                                        (err) => {
-                                            if (err) return reject(err);
-                                            console.log(
-                                                `Connected to mysql db at host ${host} (userId added)`,
-                                            );
-                                            resolve();
-                                        },
-                                    );
-                                } else {
-                                    console.log(
-                                        `Connected to mysql db at host ${host}`,
-                                    );
-                                    resolve();
-                                }
-                            },
-                        );
-                    },
-                );
+                resolve();
             },
         );
     });

@@ -43,21 +43,7 @@ function init(): Promise<void> {
       email TEXT UNIQUE,
       passwordHash TEXT
     );
-    CREATE TABLE IF NOT EXISTS todo_items (
-      id TEXT PRIMARY KEY,
-      name TEXT,
-      completed INTEGER,
-      userId TEXT,
-      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
-    );
   `);
-
-    // Migration: Add userId to todo_items if it doesn't exist
-    try {
-        db.prepare('ALTER TABLE todo_items ADD COLUMN userId TEXT').run();
-    } catch {
-        // Column already exists or table doesn't exist yet
-    }
 
     return Promise.resolve();
 }
