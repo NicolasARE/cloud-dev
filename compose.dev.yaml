@@ -45,6 +45,29 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  auth-dev:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    develop:
+      watch:
+        - path: ./auth/src
+          action: sync
+          target: /usr/local/app/src
+        - path: ./auth/package.json
+          action: rebuild
+    volumes:
+      - ./auth:/usr/local/app
+      - auth_node_modules:/usr/local/app/node_modules
+    labels:
+      traefik.http.routers.auth.rule: Host(`localhost`) && PathPrefix(`/api/auth`)
+      traefik.http.services.auth.loadbalancer.server.port: 3001
+
   ###################################################
   # Service: backend
   # 
@@ -182,3 +205,4 @@ services:
 volumes:
   todo-mysql-data:
   backend_node_modules:
+  auth_node_modules:

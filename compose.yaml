@@ -45,6 +45,34 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    command: sh -c "npm install && npm run dev"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    labels:
+      traefik.http.routers.auth.rule: Host(`localhost`) && PathPrefix(`/api/auth`)
+      traefik.http.routers.auth.priority: 110
+      traefik.http.services.auth.loadbalancer.server.port: 3001
+    develop:
+      watch:
+        - path: ./auth/src
+          action: sync
+          target: /app/src
+        - path: ./auth/package.json
+          action: rebuild
+    volumes:
+      - ./auth:/app
+      - /app/node_modules
+
   ###################################################
   # Service: backend
   # 
