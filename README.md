@@ -39,6 +39,11 @@ Voici les variables à renseigner :
 
 Vous devez aussi installer les dépendances dans chaque service afin de pouvoir lancer les tests.
 
+Installer les dépendances du auth en partant de la racine du projet : 
+```
+cd auth
+npm i
+```
 Installer les dépendances du backend en partant de la racine du projet : 
 ```
 cd backend
@@ -66,6 +71,13 @@ docker compose -f compose.dev.yaml up --watch
 docker compose up -d --build
 ```
 
+### URL
+
+- client: http://localhost
+- auth: http://localhost/api/auth/greeting
+- api: http://localhost/api/greeting
+- phpMyAdmin: http://db.localhost
+
 
 ## Supprimer les containers
 
@@ -81,24 +93,32 @@ docker compose down
 
 ## Lancer les tests
 
-### Backend
+Avant tout, rendez-vous dans le dossier avec voulu (client, auth ou backend) en partant de la racine du projet.
 
-Avant tout, rendez-vous dans le dossier avec : `cd backend` en partant de la racine du projet.
+### Tous les tests
+```
+npm test
+```
 
-Tous les tests : `npm test`
-Tests unitaires : `npm test units`
-Tests d'integrations : `npm test integrations`
+### Tests unitaires
+```
+npm test units
+```
 
-Un test précis : `npm test [units OU integrations]/[Nom du fichier à tester]`
+### Tests d'integrations
+```
+npm test integrations
+```
 
-### Frontend
 
-Avant tout, rendez-vous dans le dossier avec : `cd client` en partant de la racine du projet.
+## phpMyAdmin
 
-Tous les tests : `npm run test`
-Tests unitaires : `npm test units`
-Tests d'integrations : `npm test integrations`
+Pour se connecter à phpMyAdmin, l'url est : 
+```
+http://db.localhost
+```
 
+Ayant 2 base de données, pour vous connecter, utiliser les variables `PMA_HOST_**`, `PMA_USER_**`, `PMA_PASSWORD_**` défini dans `.env` suivant si vous voulez voir la base de donnée des users ou des items.
 
 ## Outils de monitoring
 
