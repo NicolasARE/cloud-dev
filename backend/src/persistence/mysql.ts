@@ -60,31 +60,7 @@ async function init(): Promise<void> {
             'CREATE TABLE IF NOT EXISTS todo_items (id varchar(36) PRIMARY KEY, name varchar(255), completed boolean, userId varchar(36) ) DEFAULT CHARSET utf8mb4',
             (err) => {
                 if (err) return reject(err);
-
-                // Migration: Add userId to todo_items if it doesn't exist
-                pool.query(
-                    "SHOW COLUMNS FROM todo_items LIKE 'userId'",
-                    (err, rows: RowDataPacket[]) => {
-                        if (err) return reject(err);
-                        if (rows.length === 0) {
-                            pool.query(
-                                'ALTER TABLE todo_items ADD COLUMN userId varchar(36)',
-                                (err) => {
-                                    if (err) return reject(err);
-                                    console.log(
-                                        `Connected to mysql db at host ${host} (userId added)`,
-                                    );
-                                    resolve();
-                                },
-                            );
-                        } else {
-                            console.log(
-                                `Connected to mysql db at host ${host}`,
-                            );
-                            resolve();
-                        }
-                    },
-                );
+                resolve();
             },
         );
     });
