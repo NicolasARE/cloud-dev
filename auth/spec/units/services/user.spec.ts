@@ -13,6 +13,7 @@ const mockUserRepository: jest.Mocked<typeof userRepository> = {
     getUserById: jest.fn(),
     updateUserPassword: jest.fn(),
     deleteUser: jest.fn(),
+    markAsDeleted: jest.fn(),
 };
 
 const mockBcrypt = {
@@ -57,6 +58,11 @@ jest.unstable_mockModule('jsonwebtoken', () => ({
 
 jest.unstable_mockModule('uuid', () => mockUuid);
 
+const mockSendUserEvent = jest.fn();
+jest.unstable_mockModule('../../../src/messaging/kafka/kafka.producer.js', () => ({
+    sendUserEvent: mockSendUserEvent,
+}));
+
 const { default: userService } = await import('../../../src/services/user.js');
 
 // =====================
@@ -94,12 +100,14 @@ describe('UserService', () => {
                 firstName: input.firstName,
                 email: input.email,
                 passwordHash: 'hashed-password',
+                isDeleted: false,
             });
 
             expect(result).toEqual({
                 id: 'uuid-123',
                 firstName: input.firstName,
                 email: input.email,
+                isDeleted: false,
             });
         });
 
@@ -195,6 +203,33 @@ describe('UserService', () => {
                 'user-123',
             );
             expect(result).toEqual(user);
+        });
+    });
+
+    describe('deleteAccount', () => {
+        test('doit marquer le compte comme supprimé et envoyer un événement Kafka', async () => {
+            mockUserRepository.markAsDeleted.mockResolvedValue(undefined);
+            mockSendUserEvent.mockResolvedValue(undefined);
+
+            await userService.deleteAccount('user-123');
+
+            expect(mockUserRepository.markAsDeleted).toHaveBeenCalledWith(
+                'user-123',
+            );
+            expect(mockSendUserEvent).toHaveBeenCalledWith({
+                type: 'USER_DELETED',
+                userId: 'user-123',
+            });
+        });
+    });
+
+    describe('deleteAccountDefinitively', () => {
+        test('doit supprimer définitivement le compte', async () => {
+            mockUserRepository.deleteUser.mockResolvedValue(undefined);
+
+            await userService.deleteAccountDefinitively('user-123');
+
+            expect(mockUserRepository.deleteUser).toHaveBeenCalledWith('user-123');
         });
     });
 });

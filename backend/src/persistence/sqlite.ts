@@ -114,7 +114,16 @@ function removeItem(id: string): Promise<void> {
     return Promise.resolve();
 }
 
-// Export typé (compatible MySQL interface)
+function removeItemsByUserId(userId: string): Promise<void> {
+    const stmt = db.prepare(`
+    DELETE FROM todo_items WHERE userId = ?
+  `);
+
+    stmt.run(userId);
+
+    return Promise.resolve();
+}
+
 const sqliteDb: DatabaseInterface = {
     init,
     teardown,
@@ -123,6 +132,7 @@ const sqliteDb: DatabaseInterface = {
     addItem,
     updateItem,
     removeItem,
+    removeItemsByUserId,
 };
 
 export default sqliteDb;

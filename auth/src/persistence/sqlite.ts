@@ -17,6 +17,7 @@ type UserRow = {
     firstName: string;
     email: string;
     passwordHash: string;
+    isDeleted: number;
 };
 
 function init(): Promise<void> {
@@ -41,7 +42,8 @@ function init(): Promise<void> {
       id TEXT PRIMARY KEY,
       firstName TEXT,
       email TEXT UNIQUE,
-      passwordHash TEXT
+      passwordHash TEXT,
+      isDeleted INTEGER DEFAULT 0
     );
   `);
 
@@ -72,6 +74,7 @@ function getUserByEmail(email: string): Promise<User | undefined> {
         firstName: row.firstName,
         email: row.email,
         password: row.passwordHash,
+        isDeleted: row.isDeleted === 1,
     });
 }
 
@@ -83,6 +86,7 @@ function getUserById(id: string): Promise<User | undefined> {
         id: row.id,
         firstName: row.firstName,
         email: row.email,
+        isDeleted: row.isDeleted === 1,
     });
 }
 
@@ -92,21 +96,18 @@ function updateUserPassword(id: string, passwordHash: string): Promise<void> {
     return Promise.resolve();
 }
 
-function deleteUser(id: string): Promise<void> {
-    // SQLite doesn't always have FK enabled by default, so we might need to delete items manually
-    // But let's assume cascade works if we enable it or just delete manually to be safe
-    const deleteItems = db.prepare('DELETE FROM todo_items WHERE userId = ?');
-    const deleteUser = db.prepare('DELETE FROM users WHERE id = ?');
-
-    db.transaction(() => {
-        deleteItems.run(id);
-        deleteUser.run(id);
-    })();
-
+function markAsDeleted(id: string): Promise<void> {
+    const stmt = db.prepare('UPDATE users SET isDeleted = 1 WHERE id = ?');
+    stmt.run(id);
     return Promise.resolve();
 }
 
-// Export typé (compatible MySQL interface)
+function deleteUser(id: string): Promise<void> {
+    const stmt = db.prepare('DELETE FROM users WHERE id = ?');
+    stmt.run(id);
+    return Promise.resolve();
+}
+
 const sqliteDb: DatabaseInterface = {
     init,
     teardown,
@@ -115,6 +116,7 @@ const sqliteDb: DatabaseInterface = {
     getUserById,
     updateUserPassword,
     deleteUser,
+    markAsDeleted,
 };
 
 export default sqliteDb;
