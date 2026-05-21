@@ -154,6 +154,19 @@ function removeItem(id: string): Promise<void> {
     });
 }
 
+function removeItemsByUserId(userId: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      "DELETE FROM todo_items WHERE userId = ?",
+      [userId],
+      (err) => {
+        if (err) return reject(err);
+        resolve();
+      }
+    );
+  });
+}
+
 const db: Database = {
     init,
     teardown,
@@ -162,6 +175,7 @@ const db: Database = {
     addItem,
     updateItem,
     removeItem,
+    removeItemsByUserId
 };
 
 export default db;

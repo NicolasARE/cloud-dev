@@ -5,6 +5,7 @@ import type {
     ToDoItemDtoUpdate,
 } from '../static/models/ToDoItem.js';
 import { v4 as uuid } from 'uuid';
+import { sendUserEvent } from "../messaging/kafka/kafka.producer";
 
 async function getItems(userId: string): Promise<ToDoItem[]> {
     return todoRepository.getItems(userId);
@@ -64,9 +65,19 @@ async function deleteItem(id: string, userId: string): Promise<void> {
     await todoRepository.removeItem(id);
 }
 
+async function deleteItemsByUserId(userId: string): Promise<void> {
+    await todoRepository.removeItemsByUserId(userId);
+
+    await sendUserEvent({
+        type: 'TODOS_DELETED_SUCCESSFULLY',
+        userId: userId,
+    });
+}
+
 export default {
     getItems,
     addItem,
     updateItem,
     deleteItem,
+    deleteItemsByUserId,
 };

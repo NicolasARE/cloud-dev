@@ -10,4 +10,5 @@ export interface Database {
     addItem(item: ToDoItem): Promise<void>;
     updateItem(id: string, item: ToDoItem): Promise<void>;
     removeItem(id: string): Promise<void>;
+    removeItemsByUserId(userId: string): Promise<void>;
 }
