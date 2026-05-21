@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import userRepository from '../repositories/user.js';
 import { User, UserDtoRegister, UserDtoLogin } from '../static/models/User.js';
-import { sendUserEvent } from "../messaging/kafka/kafka.producer";
+import { sendUserEvent } from "../messaging/kafka/kafka.producer.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 

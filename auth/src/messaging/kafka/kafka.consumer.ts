@@ -1,4 +1,4 @@
-import { kafka } from "./kafka.client";
+import { kafka } from "./kafka.client.js";
 import userService from "../../services/user.js";
 
 const consumer = kafka.consumer({ groupId: "auth-service" });

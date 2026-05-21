@@ -1,4 +1,4 @@
-import { kafka } from "./kafka.client";
+import { kafka } from "./kafka.client.js";
 import itemService from "../../services/item.js";
 
 const consumer = kafka.consumer({ groupId: "todo-service" });
