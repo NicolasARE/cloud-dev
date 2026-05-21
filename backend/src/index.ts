@@ -12,6 +12,8 @@ import addItem from './controllers/addItem.js';
 import updateItem from './controllers/updateItem.js';
 import deleteItem from './controllers/deleteItem.js';
 import { authenticateToken } from './middleware/auth.js';
+import { startConsumer } from "./messaging/kafka/kafka.consumer.js";
+import { connectProducer } from "./messaging/kafka/kafka.producer.js";
 
 const app: Application = express();
 
@@ -72,7 +74,9 @@ app.use(express.static(path.join(__dirname, 'static')));
 
 
 db.init()
-    .then(() => {
+    .then(async () => {
+        await startConsumer();
+        await connectProducer();
         app.listen(3000, () => console.log('Listening on port 3000'));
     })
     .catch((err: unknown) => {
