@@ -45,26 +45,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  auth-dev:
-    build:
-      context: ./auth
-      dockerfile: Dockerfile.dev
-    environment:
-      MYSQL_HOST: ${MYSQL_HOST_AUTH}
-      MYSQL_USER: ${MYSQL_USER_AUTH}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD_AUTH}
-      MYSQL_DB: ${MYSQL_DB_AUTH}
-    depends_on:
-      mysql_auth:
-        condition: service_healthy
-    volumes:
-      - ./auth:/usr/local/app
-      - auth_node_modules:/usr/local/app/node_modules
-    labels:
-      traefik.http.routers.auth.rule: Host(`localhost`) && PathPrefix(`/api/auth`)
-      traefik.http.routers.auth.priority: 110
-      traefik.http.services.auth.loadbalancer.server.port: 3001
-
   ###################################################
   # Service: backend
   # 
@@ -85,11 +65,33 @@ services:
   # the appropriate routing rules. In this case, all requests to localhost/api/*
   # will be forwarded to this service's port 3000. 
   ###################################################
+  auth-dev:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile.dev
+    environment:
+      KAFKA_BROKER: kafka:9092
+      MYSQL_HOST: ${MYSQL_HOST_AUTH}
+      MYSQL_USER: ${MYSQL_USER_AUTH}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD_AUTH}
+      MYSQL_DB: ${MYSQL_DB_AUTH}
+    depends_on:
+      mysql_auth:
+        condition: service_healthy
+    volumes:
+      - ./auth:/usr/local/app
+      - auth_node_modules:/usr/local/app/node_modules
+    labels:
+      traefik.http.routers.auth.rule: Host(`localhost`) && PathPrefix(`/api/auth`)
+      traefik.http.routers.auth.priority: 110
+      traefik.http.services.auth.loadbalancer.server.port: 3001
+
   backend-dev:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
     environment:
+      KAFKA_BROKER: kafka:9092
       MYSQL_HOST: ${MYSQL_HOST_API}
       MYSQL_USER: ${MYSQL_USER_API}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD_API}
@@ -211,6 +213,34 @@ services:
     labels:
       traefik.http.routers.phpmyadmin.rule: Host(`db.localhost`)
       traefik.http.services.phpmyadmin.loadbalancer.server.port: 80
+
+
+  ###################################################
+  # Service: kafka
+  #
+  # This service provides a distributed event streaming platform used for
+  # asynchronous communication between microservices. It handles message
+  # brokering, event publishing, and consumption across the system.
+  ###################################################
+  kafka:
+    image: apache/kafka:4.3.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
 
 ###################################################
 # Volumes
