@@ -10,4 +10,5 @@ export interface Database {
     getUserById(id: string): Promise<User | undefined>;
     updateUserPassword(id: string, passwordHash: string): Promise<void>;
     deleteUser(id: string): Promise<void>;
+    markAsDeleted(id: string): Promise<void>;
 }

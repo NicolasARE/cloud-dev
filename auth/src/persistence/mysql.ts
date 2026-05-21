@@ -57,7 +57,7 @@ async function init(): Promise<void> {
 
     return new Promise((resolve, reject) => {
         pool.query(
-            'CREATE TABLE IF NOT EXISTS users (id varchar(36) PRIMARY KEY, firstName varchar(255), email varchar(255) UNIQUE, passwordHash varchar(255)) DEFAULT CHARSET utf8mb4',
+            'CREATE TABLE IF NOT EXISTS users (id varchar(36) PRIMARY KEY, firstName varchar(255), email varchar(255) UNIQUE, passwordHash varchar(255), isDeleted boolean) DEFAULT CHARSET utf8mb4',
             (err) => {
                 if (err) return reject(err);
                 resolve();
@@ -150,6 +150,15 @@ function deleteUser(id: string): Promise<void> {
     });
 }
 
+function markAsDeleted(id: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        pool.query('UPDATE users SET isDeleted = true WHERE id = ?', [id], (err) => {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+}
+
 const db: Database = {
     init,
     teardown,
@@ -158,6 +167,7 @@ const db: Database = {
     getUserById,
     updateUserPassword,
     deleteUser,
+    markAsDeleted
 };
 
 export default db;
