@@ -16,37 +16,26 @@ Voici les variables à renseigner :
 
 | Variable | Description |
 |----------|-------------|
-| MYSQL_HOST | nom de l'hote de la bdd |
-| MYSQL_USER | nom du user de la bdd |
-| MYSQL_PASSWORD | mot de passe de la bdd |
-| MYSQL_DB | nom de la bdd |
-| MYSQL_ROOT_PASSWORD | mot de passe utilisé par le backend pour se connecter à la bdd (doit être égale à MYSQL_PASSWORD) |
-| MYSQL_DATABASE | nom de la bdd utilisé par le backend pour se connecter à la bdd (doit être égale à MYSQL_DB) |
-| PMA_HOST | nol d'hote utiliser par phpMyAdmint( doit être égale à MYSQL_HOST) |
-| PMA_USER | nom d'utilisateur utilisé par phpMyAdmin pour se connecter à la bdd (doit être égale à MYSQL_USER) |
-| PMA_PASSWORD | mot de passe utilisé par phpMyAdmin pour se connecter à la bdd (doit être égale à MYSQL_PASSWORD) |
-| VITE_API_URL | url utilisé par le frontend (client) pour accéder au backend (doit être `/api/`) |
+| MYSQL_HOST_API | Nom de l’hôte Docker de la base de données API (doit être `mysql_api`) |
+| MYSQL_USER_API | Nom de l’utilisateur MySQL pour la base API |
+| MYSQL_PASSWORD_API | Mot de passe de l’utilisateur MySQL pour la base API |
+| MYSQL_DB_API | Nom de la base de données API |
+| MYSQL_ROOT_PASSWORD_API | Mot de passe root MySQL pour la base API (utilisé à l’initialisation du conteneur MySQL) |
+| MYSQL_DATABASE_API | Nom de la base de données créée automatiquement par MySQL (doit être égal à MYSQL_DB_API) |
+| PMA_HOST_API | Nom de l’hôte MySQL utilisé par phpMyAdmin pour la base API (doit être `mysql_api`) |
+| PMA_USER_API | Nom d’utilisateur utilisé par phpMyAdmin pour se connecter à la base API |
+| PMA_PASSWORD_API | Mot de passe utilisé par phpMyAdmin pour se connecter à la base API |
+| MYSQL_HOST_AUTH | Nom de l’hôte Docker de la base de données AUTH (doit être `mysql_auth`) |
+| MYSQL_USER_AUTH | Nom de l’utilisateur MySQL pour la base AUTH |
+| MYSQL_PASSWORD_AUTH | Mot de passe de l’utilisateur MySQL pour la base AUTH |
+| MYSQL_DB_AUTH | Nom de la base de données AUTH |
+| MYSQL_ROOT_PASSWORD_AUTH | Mot de passe root MySQL pour la base AUTH (utilisé à l’initialisation du conteneur MySQL) |
+| MYSQL_DATABASE_AUTH | Nom de la base de données créée automatiquement par MySQL (doit être égal à MYSQL_DB_AUTH) |
+| PMA_HOST_AUTH | Nom de l’hôte MySQL utilisé par phpMyAdmin pour la base AUTH (doit être `mysql_auth`) |
+| PMA_USER_AUTH | Nom d’utilisateur utilisé par phpMyAdmin pour se connecter à la base AUTH |
+| PMA_PASSWORD_AUTH | Mot de passe utilisé par phpMyAdmin pour se connecter à la base AUTH |
+| VITE_API_URL | URL utilisée par le frontend (client) pour accéder au backend (doit être `/api/`) |
 
-Voici un exemple de ce que peut être `.env` : 
-```
-# backend
-MYSQL_HOST=mysql
-MYSQL_USER=node
-MYSQL_PASSWORD=secret
-MYSQL_DB=todos
-
-# mysql
-MYSQL_ROOT_PASSWORD=secret
-MYSQL_DATABASE=todos
-
-# phpmyadmin
-PMA_HOST=mysql
-PMA_USER=node
-PMA_PASSWORD=secret
-
-# client
-VITE_API_URL=/api/
-```
 
 Vous devez aussi installer les dépendances dans chaque service afin de pouvoir lancer les tests.
 
