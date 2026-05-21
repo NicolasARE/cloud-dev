@@ -13,6 +13,8 @@ import getProfile from './controllers/getProfile.js';
 import changePassword from './controllers/changePassword.js';
 import deleteAccount from './controllers/deleteAccount.js';
 import { authenticateToken } from './middleware/auth.js';
+import { connectProducer } from "./messaging/kafka/kafka.producer.js";
+import { startConsumer } from "./messaging/kafka/kafka.consumer.js";
 
 const app: Application = express();
 
@@ -67,8 +69,10 @@ app.use(express.static(path.join(__dirname, 'static')));
 
 
 db.init()
-    .then(() => {
-        app.listen(3001);
+    .then(async () => {
+        await connectProducer();
+        await startConsumer();
+        app.listen(3001, () => console.log('Listening on port 3001'));
     })
     .catch((err: unknown) => {
         console.error(err);
