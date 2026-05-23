@@ -15,9 +15,7 @@ import type { AuthRequest } from '../../src/middleware/auth.js';
 import db from '../../src/persistence/sqlite.js';
 import registerController from '../../src/controllers/register.js';
 import loginController from '../../src/controllers/login.js';
-import getItemsController from '../../src/controllers/getItems.js';
 import { User, UserDtoRegister } from '../../src/static/models/User.js';
-import { ToDoItem } from '../../src/static/models/ToDoItem.js';
 
 const dbPath = path.join(process.cwd(), 'etc/todos/test-auth-flow.db');
 
@@ -42,7 +40,7 @@ afterEach(async () => {
 });
 
 describe('Integration: Authentification Flow', () => {
-    test('cycle complet: inscription, connexion, et accès protégé', async () => {
+    test('cycle complet: inscription, connexion', async () => {
         // 1. INSCRIPTION
         const sendMockRegister = jest.fn();
 
@@ -84,25 +82,6 @@ describe('Integration: Authentification Flow', () => {
         const { token, user: loggedUser } = sendMockLogin.mock.calls[0][0] as { user: User; token: string };
         expect(token).toBeDefined();
         expect(loggedUser.firstName).toBe(registeredUser.firstName);
-
-        // 3. ACCÈS PROTÉGÉ (Vérifier qu'on peut récupérer les items avec cet ID)
-        // On simule le passage par le middleware d'auth qui injecte req.user
-        const sendMockItems = jest.fn();
-
-        const getItemsReq = {
-            user: { id: loggedUser.id, email: loggedUser.email },
-        } as AuthRequest;
-        const getItemsRes = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn(),
-            send: sendMockItems,
-        } as unknown as Response;
-
-        await getItemsController(getItemsReq, getItemsRes);
-        expect(getItemsRes.send).toHaveBeenCalled();
-        const items = sendMockItems.mock.calls[0][0] as ToDoItem[];
-        expect(Array.isArray(items)).toBe(true);
-        expect(items.length).toBe(0); // Nouveau compte = 0 items
     });
 
     test('échec de connexion avec un mauvais mot de passe', async () => {

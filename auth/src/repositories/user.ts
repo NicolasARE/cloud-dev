@@ -20,6 +20,10 @@ async function updateUserPassword(
     return db.updateUserPassword(id, passwordHash);
 }
 
+async function markAsDeleted(id: string): Promise<void> {
+  return db.markAsDeleted(id);
+}
+
 async function deleteUser(id: string): Promise<void> {
     return db.deleteUser(id);
 }
@@ -29,5 +33,6 @@ export default {
     getUserById,
     addUser,
     updateUserPassword,
-    deleteUser,
+    markAsDeleted,
+    deleteUser
 };

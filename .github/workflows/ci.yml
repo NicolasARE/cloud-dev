@@ -15,6 +15,7 @@ jobs:
     outputs:
       client: ${{ steps.filter.outputs.client }}
       backend: ${{ steps.filter.outputs.backend }}
+      auth: ${{ steps.filter.outputs.auth }}
 
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +30,8 @@ jobs:
               - 'client/**'
             backend:
               - 'backend/**'
+            auth:
+              - 'auth/**'
           token: ${{ secrets.GITHUB_TOKEN }}
 
   client:
@@ -79,30 +82,62 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Cache backend deps
-        uses: actions/cache@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          path: backend/node_modules
-          key: backend-${{ hashFiles('backend/package-lock.json') }}
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
 
       - name: Install deps
-        run: |
-          cd backend
-          npm install
+        run: cd backend && npm ci
+
+      - name: Lint
+        run: cd backend && npm run lint
+
+      - name: Build
+        run: cd backend && npm run build
 
       - name: Unit tests
-        run: |
-          cd backend
-          npm test
+        run: cd backend && npm test
 
       - name: Integration tests
-        if: github.event_name == 'pull_request' 
-        run: |
-          cd backend
-          npm test integrations
+        if: github.event_name == 'pull_request'
+        run: cd backend && npm test integrations
+
+
+  auth:
+    needs: changes
+    if: needs.changes.outputs.auth == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: auth/package-lock.json
+
+      - name: Install deps
+        run: cd auth && npm ci
+
+      - name: Lint
+        run: cd auth && npm run lint
+
+      - name: Build
+        run: cd auth && npm run build
+
+      - name: Unit tests
+        run: cd auth && npm test
+
+      - name: Integration tests
+        if: github.event_name == 'pull_request'
+        run: cd auth && npm test integrations
 
 
   docker-client:
@@ -164,3 +199,33 @@ jobs:
           tags: |
             ghcr.io/nicolasare/cloud-dev/backend:${{ github.sha }}
             ghcr.io/nicolasare/cloud-dev/backend:latest
+
+  docker-auth:
+    runs-on: ubuntu-latest
+    needs: [auth]
+
+    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push auth
+        uses: docker/build-push-action@v5
+        with:
+          context: ./auth
+          push: true
+          tags: |
+            ghcr.io/nicolasare/cloud-dev/auth:${{ github.sha }}
+            ghcr.io/nicolasare/cloud-dev/auth:latest

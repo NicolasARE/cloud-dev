@@ -21,10 +21,15 @@ async function removeItem(id: string): Promise<void> {
     return db.removeItem(id);
 }
 
+async function removeItemsByUserId(userId: string): Promise<void> {
+    return db.removeItemsByUserId(userId);
+}
+
 export default {
     getItems,
     getItem,
     addItem,
     updateItem,
     removeItem,
+    removeItemsByUserId,
 };

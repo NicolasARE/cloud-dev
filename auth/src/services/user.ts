@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import userRepository from '../repositories/user.js';
 import { User, UserDtoRegister, UserDtoLogin } from '../static/models/User.js';
+import { sendUserEvent } from "../messaging/kafka/kafka.producer.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -19,6 +20,7 @@ async function register(input: UserDtoRegister): Promise<User> {
         id,
         firstName: input.firstName,
         email: input.email,
+        isDeleted: false
     };
 
     await userRepository.addUser({ ...newUser, passwordHash });
@@ -82,7 +84,16 @@ async function changePassword(
 }
 
 async function deleteAccount(id: string): Promise<void> {
-    await userRepository.deleteUser(id);
+  await userRepository.markAsDeleted(id);
+
+  await sendUserEvent({
+    type: "USER_DELETED",
+    userId: id,
+  });
+}
+
+async function deleteAccountDefinitively(id: string): Promise<void> {
+  await userRepository.deleteUser(id);
 }
 
 export default {
@@ -91,4 +102,5 @@ export default {
     getProfile,
     changePassword,
     deleteAccount,
+    deleteAccountDefinitively
 };

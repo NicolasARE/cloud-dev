@@ -7,13 +7,14 @@ import * as promClient from 'prom-client';
 
 import db from './persistence/index.js';
 import getGreeting from './controllers/getGreeting.js';
-import getItems from './controllers/getItems.js';
-import addItem from './controllers/addItem.js';
-import updateItem from './controllers/updateItem.js';
-import deleteItem from './controllers/deleteItem.js';
+import register from './controllers/register.js';
+import login from './controllers/login.js';
+import getProfile from './controllers/getProfile.js';
+import changePassword from './controllers/changePassword.js';
+import deleteAccount from './controllers/deleteAccount.js';
 import { authenticateToken } from './middleware/auth.js';
-import { startConsumer } from "./messaging/kafka/kafka.consumer.js";
 import { connectProducer } from "./messaging/kafka/kafka.producer.js";
+import { startConsumer } from "./messaging/kafka/kafka.consumer.js";
 
 const app: Application = express();
 
@@ -53,31 +54,25 @@ app.get('/metrics', async (req, res) => {
     res.end(await metricsRegistry.metrics());
 });
 
-app.get('/api/greeting', getGreeting);
+app.get('/api/auth/greeting', getGreeting);
 
-// // Auth Routes
-// app.post('/api/auth/register', register);
-// app.post('/api/auth/login', login);
+// Auth Routes
+app.post('/api/auth/register', register);
+app.post('/api/auth/login', login);
 
-// // Profile Routes (Protected)
-// app.get('/api/auth/profile', authenticateToken, getProfile);
-// app.put('/api/auth/password', authenticateToken, changePassword);
-// app.delete('/api/auth/account', authenticateToken, deleteAccount);
+// Profile Routes (Protected)
+app.get('/api/auth/profile', authenticateToken, getProfile);
+app.put('/api/auth/password', authenticateToken, changePassword);
+app.delete('/api/auth/account', authenticateToken, deleteAccount);
 
-// Item Routes (Protected)
-
-app.get('/api/items', authenticateToken, getItems);
-app.post('/api/items', authenticateToken, addItem);
-app.put('/api/items/:id', authenticateToken, updateItem);
-app.delete('/api/items/:id', authenticateToken, deleteItem);
 app.use(express.static(path.join(__dirname, 'static')));
 
 
 db.init()
     .then(async () => {
-        await startConsumer();
         await connectProducer();
-        app.listen(3000, () => console.log('Listening on port 3000'));
+        await startConsumer();
+        app.listen(3001, () => console.log('Listening on port 3001'));
     })
     .catch((err: unknown) => {
         console.error(err);

@@ -2,7 +2,7 @@ import waitPort from 'wait-port';
 import fs from 'fs';
 import mysql, { Pool, RowDataPacket } from 'mysql2';
 
-import type { ToDoItem } from '../static/models/ToDoItem.js';
+import type { User } from '../static/models/User.js';
 import type { Database } from '../static/models/Database.js';
 
 const {
@@ -18,11 +18,11 @@ const {
 
 let pool: Pool;
 
-type DbRow = RowDataPacket & {
+type UserRow = RowDataPacket & {
     id: string;
-    name: string;
-    completed: number;
-    userId: string;
+    firstName: string;
+    email: string;
+    passwordHash: string;
 };
 
 function readValue(value?: string, file?: string): string {
@@ -57,7 +57,7 @@ async function init(): Promise<void> {
 
     return new Promise((resolve, reject) => {
         pool.query(
-            'CREATE TABLE IF NOT EXISTS todo_items (id varchar(36) PRIMARY KEY, name varchar(255), completed boolean, userId varchar(36) ) DEFAULT CHARSET utf8mb4',
+            'CREATE TABLE IF NOT EXISTS users (id varchar(36) PRIMARY KEY, firstName varchar(255), email varchar(255) UNIQUE, passwordHash varchar(255), isDeleted boolean) DEFAULT CHARSET utf8mb4',
             (err) => {
                 if (err) return reject(err);
                 resolve();
@@ -75,55 +75,64 @@ function teardown(): Promise<void> {
     });
 }
 
-function getItems(userId: string): Promise<ToDoItem[]> {
+// User Methods
+function addUser(user: User & { passwordHash?: string }): Promise<void> {
     return new Promise((resolve, reject) => {
-        pool.query<DbRow[]>(
-            'SELECT * FROM todo_items WHERE userId = ?',
-            [userId],
-            (err, rows: DbRow[]) => {
+        pool.query(
+            'INSERT INTO users (id, firstName, email, passwordHash) VALUES (?, ?, ?, ?)',
+            [user.id, user.firstName, user.email, user.passwordHash],
+            (err) => {
                 if (err) return reject(err);
-
-                const items: ToDoItem[] = rows.map((item) => ({
-                    id: item.id,
-                    name: item.name,
-                    completed: item.completed === 1,
-                    userId: item.userId,
-                }));
-
-                resolve(items);
+                resolve();
             },
         );
     });
 }
 
-function getItem(id: string): Promise<ToDoItem | undefined> {
+function getUserByEmail(email: string): Promise<User | undefined> {
     return new Promise((resolve, reject) => {
-        pool.query(
-            'SELECT * FROM todo_items WHERE id=?',
+        pool.query<UserRow[]>(
+            'SELECT * FROM users WHERE email = ?',
+            [email],
+            (err, rows) => {
+                if (err) return reject(err);
+                if (rows.length === 0) return resolve(undefined);
+                const row = rows[0];
+                resolve({
+                    id: row.id,
+                    firstName: row.firstName,
+                    email: row.email,
+                    password: row.passwordHash,
+                });
+            },
+        );
+    });
+}
+
+function getUserById(id: string): Promise<User | undefined> {
+    return new Promise((resolve, reject) => {
+        pool.query<UserRow[]>(
+            'SELECT * FROM users WHERE id = ?',
             [id],
-            (err, rows: DbRow[]) => {
+            (err, rows) => {
                 if (err) return reject(err);
-
-                const item = rows[0]
-                    ? {
-                          id: rows[0].id,
-                          name: rows[0].name,
-                          completed: rows[0].completed === 1,
-                          userId: rows[0].userId,
-                      }
-                    : undefined;
-
-                resolve(item);
+                if (rows.length === 0) return resolve(undefined);
+                const row = rows[0];
+                resolve({
+                    id: row.id,
+                    firstName: row.firstName,
+                    email: row.email,
+                });
             },
         );
     });
 }
 
-function addItem(item: ToDoItem): Promise<void> {
+function updateUserPassword(id: string, passwordHash: string): Promise<void> {
     return new Promise((resolve, reject) => {
         pool.query(
-            'INSERT INTO todo_items (id, name, completed, userId) VALUES (?, ?, ?, ?)',
-            [item.id, item.name, item.completed ? 1 : 0, item.userId],
+            'UPDATE users SET passwordHash = ? WHERE id = ?',
+            [passwordHash, id],
             (err) => {
                 if (err) return reject(err);
                 resolve();
@@ -132,50 +141,33 @@ function addItem(item: ToDoItem): Promise<void> {
     });
 }
 
-function updateItem(id: string, item: ToDoItem): Promise<void> {
+function deleteUser(id: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        pool.query(
-            'UPDATE todo_items SET name=?, completed=? WHERE id=?',
-            [item.name, item.completed ? 1 : 0, id],
-            (err) => {
-                if (err) return reject(err);
-                resolve();
-            },
-        );
-    });
-}
-
-function removeItem(id: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        pool.query('DELETE FROM todo_items WHERE id = ?', [id], (err) => {
+        pool.query('DELETE FROM users WHERE id = ?', [id], (err) => {
             if (err) return reject(err);
             resolve();
         });
     });
 }
 
-function removeItemsByUserId(userId: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    pool.query(
-      "DELETE FROM todo_items WHERE userId = ?",
-      [userId],
-      (err) => {
-        if (err) return reject(err);
-        resolve();
-      }
-    );
-  });
+function markAsDeleted(id: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        pool.query('UPDATE users SET isDeleted = true WHERE id = ?', [id], (err) => {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
 }
 
 const db: Database = {
     init,
     teardown,
-    getItems,
-    getItem,
-    addItem,
-    updateItem,
-    removeItem,
-    removeItemsByUserId
+    addUser,
+    getUserByEmail,
+    getUserById,
+    updateUserPassword,
+    deleteUser,
+    markAsDeleted
 };
 
 export default db;

@@ -65,31 +65,41 @@ services:
   # the appropriate routing rules. In this case, all requests to localhost/api/*
   # will be forwarded to this service's port 3000. 
   ###################################################
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    environment:
+      KAFKA_BROKER: kafka:9092
+      MYSQL_HOST: ${MYSQL_HOST_AUTH}
+      MYSQL_USER: ${MYSQL_USER_AUTH}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD_AUTH}
+      MYSQL_DB: ${MYSQL_DB_AUTH}
+    depends_on:
+      mysql_auth:
+        condition: service_healthy
+    labels:
+      traefik.http.routers.auth.rule: Host(`localhost`) && PathPrefix(`/api/auth`)
+      traefik.http.routers.auth.priority: 110
+      traefik.http.services.auth.loadbalancer.server.port: 3001
+
   backend:
     build:
       context: ./backend
-    command: sh -c "npm install && npm run dev"
     environment:
-      - NODE_ENV=development
-    env_file:
-      - .env
+      NODE_ENV: production
+      KAFKA_BROKER: kafka:9092
+      MYSQL_HOST: ${MYSQL_HOST_API}
+      MYSQL_USER: ${MYSQL_USER_API}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD_API}
+      MYSQL_DB: ${MYSQL_DB_API}
     depends_on:
-      mysql:
+      mysql_api:
         condition: service_healthy
     labels:
       traefik.http.routers.backend.rule: Host(`localhost`) && (PathPrefix(`/api`) || PathPrefix(`/metrics`))
       traefik.http.routers.backend.priority: 100
       traefik.http.services.backend.loadbalancer.server.port: 3000
-    develop:
-      watch:
-        - path: ./backend/src
-          action: sync
-          target: /app/src
-        - path: ./backend/package.json
-          action: rebuild
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
 
   ###################################################
   # Service: client
@@ -123,7 +133,7 @@ services:
   # The image for this service comes directly from Docker Hub and is a Docker 
   # Official Image.
   
-  # The data is persisted in a volume named todo-mysql-data. Using a volume 
+  # The data is persisted in a volume named api-mysql-data. Using a volume 
   # allows us to take down the services without losing the data. When we start
   # the services again, the data will still be there (assuming we didn't delete
   # the volume, of course!).
@@ -132,14 +142,32 @@ services:
   # database to create. Since these are used only for local development, it's
   # ok to hard-code them here.
   ###################################################
-  mysql:
+  mysql_auth:
     image: mysql:9.3
     volumes:
-      - todo-mysql-data:/var/lib/mysql
-    env_file:
-      - .env
+      - auth-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD_AUTH}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_AUTH}
+      MYSQL_USER: ${MYSQL_USER_AUTH}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD_AUTH}
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mysql_api:
+    image: mysql:9.3
+    volumes:
+      - api-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD_API}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_API}
+      MYSQL_USER: ${MYSQL_USER_API}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD_API}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -152,10 +180,12 @@ services:
   ###################################################
   phpmyadmin:
     image: phpmyadmin:5.2
-    env_file:
-      - .env
+    environment:
+      PMA_ARBITRARY: 1
     depends_on:
-      mysql:
+      mysql_auth:
+        condition: service_healthy
+      mysql_api:
         condition: service_healthy
     labels:
       traefik.http.routers.phpmyadmin.rule: Host(`db.localhost`)
@@ -238,6 +268,33 @@ services:
       traefik.http.routers.jaeger.priority: 200
       traefik.http.services.jaeger.loadbalancer.server.port: 16686
 
+  ###################################################
+  # Service: kafka
+  #
+  # This service provides a distributed event streaming platform used for
+  # asynchronous communication between microservices. It handles message
+  # brokering, event publishing, and consumption across the system.
+  ###################################################
+  kafka:
+    image: apache/kafka:4.3.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
 
 ###################################################
 # Volumes
@@ -247,7 +304,8 @@ services:
 # hence the lack of any configuration for the volume.
 ###################################################
 volumes:
-  todo-mysql-data:
+  auth-mysql-data:
+  api-mysql-data:
   todo-prometheus-data:
   todo-grafana-data:
   todo-loki-data:

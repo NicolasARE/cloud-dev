@@ -57,12 +57,6 @@ describe('integration controller addItem', () => {
         } as unknown as Response;
 
         // ACT
-        await db.addUser({
-            id: USER_ID,
-            firstName: 'Test',
-            email: 'test@example.com',
-        });
-
         await addItemController(req, res);
 
         // ASSERT HTTP
@@ -106,12 +100,6 @@ describe('integration controller addItem', () => {
         } as unknown as Response;
 
         // ACT
-        await db.addUser({
-            id: USER_ID,
-            firstName: 'Test',
-            email: 'test@example.com',
-        });
-
         await addItemController(req, res);
 
         // ASSERT HTTP
