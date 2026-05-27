@@ -26,7 +26,7 @@ describe('addItem service', () => {
         const result = await addItem(dto);
 
         // ASSERT
-        expect(mockedPost).toHaveBeenCalledWith('/items', dto);
+        expect(mockedPost).toHaveBeenCalledWith('/api/items', dto);
         expect(result).toEqual(mockResponse);
     });
 
@@ -41,6 +41,6 @@ describe('addItem service', () => {
         // ACT + ASSERT
         await expect(addItem(dto)).rejects.toThrow('Erreur API');
 
-        expect(mockedPost).toHaveBeenCalledWith('/items', dto);
+        expect(mockedPost).toHaveBeenCalledWith('/api/items', dto);
     });
 });

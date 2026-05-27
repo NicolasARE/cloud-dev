@@ -24,7 +24,7 @@ describe('updateItem service', () => {
 
         const result = await updateItem(id, dto);
 
-        expect(mockedPut).toHaveBeenCalledWith(`/items/${id}`, dto);
+        expect(mockedPut).toHaveBeenCalledWith(`/api/items/${id}`, dto);
         expect(result).toEqual(mockResponse);
     });
 

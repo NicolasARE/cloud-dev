@@ -27,7 +27,7 @@ describe('getItems service', () => {
         const result = await getItems();
 
         // ASSERT
-        expect(apiClient.get).toHaveBeenCalledWith('/items');
+        expect(apiClient.get).toHaveBeenCalledWith('/api/items');
         expect(result).toEqual(mockItems);
     });
 
@@ -40,6 +40,6 @@ describe('getItems service', () => {
         // ACT + ASSERT
         await expect(getItems()).rejects.toThrow('Erreur API');
 
-        expect(apiClient.get).toHaveBeenCalledWith('/items');
+        expect(apiClient.get).toHaveBeenCalledWith('/api/items');
     });
 });
