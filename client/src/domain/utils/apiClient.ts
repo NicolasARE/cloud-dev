@@ -1,12 +1,8 @@
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-    const token = localStorage.getItem('token');
-    // Si VITE_API_URL est vide ou relatif, on s'assure que le chemin commence par /api
-    const baseUrl = '';
-    // console.log('Base URL:', baseUrl);
-    const fullPath =
-        baseUrl === '' && !path.startsWith('/api') ? `/api${path}` : path;
-
-    const res = await fetch(`${baseUrl}${fullPath}`, {
+    const token = localStorage.getItem('token');    
+    const baseUrl = import.meta.env.VITE_API_URL;
+    
+    const res = await fetch(`${baseUrl}${path}`, {
         headers: {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
