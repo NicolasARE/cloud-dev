@@ -23,9 +23,9 @@ resources:
   - kafka-deployment.yaml
   - kafka-service.yaml
 
-  # - angular-deployment.yaml
-  # - angular-autoscale.yaml
-  # - angular-service.yaml
+  - client-deployment.yaml
+  # - client-autoscale.yaml
+  - client-service.yaml
 
   - nginx-deployment.yaml
   - nginx-service.yaml

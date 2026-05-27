@@ -9,11 +9,11 @@ data:
       worker_connections 1024;
     }
     http {
-      # upstream frontend {
-      #   # These are references to our backend containers, facilitated by
-      #   # Compose, as defined in docker-compose.yml
-      #   server angular-service:4000;
-      # } 
+      upstream frontend {
+        # These are references to our backend containers, facilitated by
+        # Compose, as defined in docker-compose.yml
+        server client-service:80;
+      } 
       upstream backend {
         # These are references to our backend containers, facilitated by
         # Compose, as defined in docker-compose.yml
@@ -28,16 +28,16 @@ data:
 
     server {
         listen 80;
-        # server_name frontend;
+        server_name frontend;
         server_name backend;
         server_name auth;
 
-        # location / {
-        #   resolver kube-dns.kube-system.svc.cluster.local valid=30s;
-        #   proxy_pass http://frontend;
-        #   proxy_set_header Host $host;
-        #   proxy_set_header X-Real-IP $remote_addr;
-        # }
+        location / {
+          resolver kube-dns.kube-system.svc.cluster.local valid=30s;
+          proxy_pass http://frontend;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
 
         location /api {
           resolver kube-dns.kube-system.svc.cluster.local valid=30s;
