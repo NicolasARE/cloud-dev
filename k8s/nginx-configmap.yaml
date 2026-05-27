@@ -19,12 +19,18 @@ data:
         # Compose, as defined in docker-compose.yml
         server api-service:3000;
       }
+      upstream auth {
+        # These are references to our auth containers, facilitated by
+        # Compose, as defined in docker-compose.yml
+        server auth-service:3001;
+      }
       
 
     server {
         listen 80;
         # server_name frontend;
         server_name backend;
+        server_name auth;
 
         # location / {
         #   resolver kube-dns.kube-system.svc.cluster.local valid=30s;
@@ -32,11 +38,20 @@ data:
         #   proxy_set_header Host $host;
         #   proxy_set_header X-Real-IP $remote_addr;
         # }
+
         location /api {
           resolver kube-dns.kube-system.svc.cluster.local valid=30s;
           proxy_pass http://backend;
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
         }
+
+        location /auth {
+          resolver kube-dns.kube-system.svc.cluster.local valid=30s;
+          proxy_pass http://auth;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+        }
+
       }
     }

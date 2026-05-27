@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: apidb-deployment
+  name: db-auth-deployment
   namespace: todo-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: apidb-deployment
+      app: db-auth-deployment
   template:
     metadata:
       labels:
-        app: apidb-deployment
+        app: db-auth-deployment
     spec:
       containers:
-        - name: apidb-deployment
+        - name: db-auth-deployment
           image: mysql:9.3
 
           ports:
@@ -25,28 +25,28 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: todo-secret
-                  key: MYSQL_PASSWORD_API
+                  key: MYSQL_PASSWORD_AUTH
 
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: todo-secret
-                  key: MYSQL_PASSWORD_API
+                  key: MYSQL_PASSWORD_AUTH
 
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
                   name: todo-secret
-                  key: MYSQL_USER_API
+                  key: MYSQL_USER_AUTH
 
             - name: MYSQL_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: todo-config
-                  key: MYSQL_DB_API
+                  key: MYSQL_DB_AUTH
 
           volumeMounts:
-            - name: api-data
+            - name: auth-data
               mountPath: /var/lib/mysql
 
           resources: {}
@@ -77,6 +77,6 @@ spec:
           #   periodSeconds: 5
 
       volumes:
-        - name: api-data
+        - name: auth-data
           persistentVolumeClaim:
-            claimName: apidb-pvc
+            claimName: db-auth-pvc

@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-api-deployment
+  namespace: todo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-api-deployment
+  template:
+    metadata:
+      labels:
+        app: db-api-deployment
+    spec:
+      containers:
+        - name: db-api-deployment
+          image: mysql:9.3
+
+          ports:
+            - containerPort: 3306
+
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-secret
+                  key: MYSQL_PASSWORD_API
+
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-secret
+                  key: MYSQL_PASSWORD_API
+
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: todo-secret
+                  key: MYSQL_USER_API
+
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-config
+                  key: MYSQL_DB_API
+
+          volumeMounts:
+            - name: api-data
+              mountPath: /var/lib/mysql
+
+          resources: {}
+          # resources:
+            # requests:
+            #   memory: "256Mi"
+            #   cpu: "250m"
+            #   ephemeral-storage: "2Gi"
+            # limits:
+            #   memory: "512Mi"
+            #   cpu: "500m"
+            #   ephemeral-storage: "5Gi"
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #       - mongosh
+          #       - --eval
+          #       - "db.adminCommand('ping')"
+          #   initialDelaySeconds: 60
+          #   periodSeconds: 10
+          # readinessProbe:
+          #   exec:
+          #     command:
+          #       - mongosh
+          #       - --eval
+          #       - "db.adminCommand('ping')"
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 5
+
+      volumes:
+        - name: api-data
+          persistentVolumeClaim:
+            claimName: db-api-pvc
