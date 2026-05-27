@@ -28,26 +28,26 @@ spec:
                   name: todo-config
                   key: VITE_API_URL
 
-          resources: {}
-          # resources:
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "50m"
-          #     ephemeral-storage: "256Mi"
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "100m"
-          #     ephemeral-storage: "512Mi"
+          # resources: {}
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+              ephemeral-storage: "256Mi"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+              ephemeral-storage: "512Mi"
 
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: 4000
-          #   initialDelaySeconds: 10
-          #   periodSeconds: 30
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: 4000
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10

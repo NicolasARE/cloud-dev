@@ -52,26 +52,25 @@ spec:
                   name: todo-config
                   key: MYSQL_DB_API
 
-          resources: {}
-          # resources:
-          #   requests:
-          #     memory: "128Mi"
-          #     cpu: "100m"
-          #     ephemeral-storage: "512Mi"
-          #   limits:
-          #     memory: "256Mi"
-          #     cpu: "200m"
-          #     ephemeral-storage: "1Gi"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+              ephemeral-storage: "512Mi"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+              ephemeral-storage: "1Gi"
 
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: 3000
-          #   initialDelaySeconds: 15
-          #   periodSeconds: 20
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: 3000
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/greeting
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /api/greeting
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10

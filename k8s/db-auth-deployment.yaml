@@ -49,16 +49,16 @@ spec:
             - name: auth-data
               mountPath: /var/lib/mysql
 
-          resources: {}
-          # resources:
-            # requests:
-            #   memory: "256Mi"
-            #   cpu: "250m"
-            #   ephemeral-storage: "2Gi"
-            # limits:
-            #   memory: "512Mi"
-            #   cpu: "500m"
-            #   ephemeral-storage: "5Gi"
+          # resources: {}
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+              ephemeral-storage: "2Gi"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+              ephemeral-storage: "5Gi"
           # livenessProbe:
           #   exec:
           #     command:
