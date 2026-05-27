@@ -15,16 +15,18 @@ resources:
   - db-auth-service.yaml
 
   - api-deployment.yaml
+  - api-autoscale.yaml
   - api-service.yaml
 
   - auth-deployment.yaml
+  - auth-autoscale.yaml
   - auth-service.yaml
 
   - kafka-deployment.yaml
   - kafka-service.yaml
 
   - client-deployment.yaml
-  # - client-autoscale.yaml
+  - client-autoscale.yaml
   - client-service.yaml
 
   - nginx-deployment.yaml
