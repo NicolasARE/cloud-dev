@@ -82,7 +82,7 @@ services:
       - ./auth:/usr/local/app
       - auth_node_modules:/usr/local/app/node_modules
     labels:
-      traefik.http.routers.auth.rule: Host(`localhost`) && PathPrefix(`/api/auth`)
+      traefik.http.routers.auth.rule: Host(`localhost`) && PathPrefix(`/auth`)
       traefik.http.routers.auth.priority: 110
       traefik.http.services.auth.loadbalancer.server.port: 3001
 

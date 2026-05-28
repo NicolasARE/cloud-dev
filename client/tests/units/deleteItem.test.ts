@@ -24,7 +24,7 @@ describe('deleteItem service', () => {
         const result = await deleteItem(id);
 
         // ASSERT
-        expect(mockedDelete).toHaveBeenCalledWith(`/items/${id}`);
+        expect(mockedDelete).toHaveBeenCalledWith(`/api/items/${id}`);
         expect(result).toBeUndefined();
     });
 
@@ -39,6 +39,6 @@ describe('deleteItem service', () => {
         // ACT + ASSERT
         await expect(deleteItem(id)).rejects.toThrow('Erreur API');
 
-        expect(mockedDelete).toHaveBeenCalledWith(`/items/${id}`);
+        expect(mockedDelete).toHaveBeenCalledWith(`/api/items/${id}`);
     });
 });

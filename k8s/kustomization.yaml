@@ -1,0 +1,33 @@
+resources:
+  - namespace.yaml
+
+  - secret.yaml
+  - configmap.yaml
+  - kafka-configmap.yaml
+  - nginx-configmap.yaml
+
+  - db-api-pvc.yaml
+  - db-api-deployment.yaml
+  - db-api-service.yaml
+
+  - db-auth-pvc.yaml
+  - db-auth-deployment.yaml
+  - db-auth-service.yaml
+
+  - api-deployment.yaml
+  - api-autoscale.yaml
+  - api-service.yaml
+
+  - auth-deployment.yaml
+  - auth-autoscale.yaml
+  - auth-service.yaml
+
+  - kafka-deployment.yaml
+  - kafka-service.yaml
+
+  - client-deployment.yaml
+  - client-autoscale.yaml
+  - client-service.yaml
+
+  - nginx-deployment.yaml
+  - nginx-service.yaml

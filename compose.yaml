@@ -79,7 +79,7 @@ services:
       mysql_auth:
         condition: service_healthy
     labels:
-      traefik.http.routers.auth.rule: Host(`localhost`) && PathPrefix(`/api/auth`)
+      traefik.http.routers.auth.rule: Host(`localhost`) && PathPrefix(`/auth`)
       traefik.http.routers.auth.priority: 110
       traefik.http.services.auth.loadbalancer.server.port: 3001
 

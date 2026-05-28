@@ -55,14 +55,6 @@ app.get('/metrics', async (req, res) => {
 
 app.get('/api/greeting', getGreeting);
 
-// // Auth Routes
-// app.post('/api/auth/register', register);
-// app.post('/api/auth/login', login);
-
-// // Profile Routes (Protected)
-// app.get('/api/auth/profile', authenticateToken, getProfile);
-// app.put('/api/auth/password', authenticateToken, changePassword);
-// app.delete('/api/auth/account', authenticateToken, deleteAccount);
 
 // Item Routes (Protected)
 

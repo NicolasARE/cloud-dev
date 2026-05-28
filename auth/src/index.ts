@@ -54,16 +54,16 @@ app.get('/metrics', async (req, res) => {
     res.end(await metricsRegistry.metrics());
 });
 
-app.get('/api/auth/greeting', getGreeting);
+app.get('/auth/greeting', getGreeting);
 
 // Auth Routes
-app.post('/api/auth/register', register);
-app.post('/api/auth/login', login);
+app.post('/auth/register', register);
+app.post('/auth/login', login);
 
 // Profile Routes (Protected)
-app.get('/api/auth/profile', authenticateToken, getProfile);
-app.put('/api/auth/password', authenticateToken, changePassword);
-app.delete('/api/auth/account', authenticateToken, deleteAccount);
+app.get('/auth/profile', authenticateToken, getProfile);
+app.put('/auth/password', authenticateToken, changePassword);
+app.delete('/auth/account', authenticateToken, deleteAccount);
 
 app.use(express.static(path.join(__dirname, 'static')));
 

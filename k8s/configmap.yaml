@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-config
+  namespace: todo-app
+data:
+  # backend
+  MYSQL_HOST_API: db-api-service
+  MYSQL_DB_API: db_api
+
+  # auth
+  MYSQL_HOST_AUTH: db-auth-service
+  MYSQL_DB_AUTH: db_auth
+
+  # phpmyadmin
+  # PMA_HOST_AUTH: mysql_auth    # Ne dois pas changé
+  # PMA_USER_AUTH: user_auth
+  # PMA_PASSWORD_AUTH: password_auth
+
+  # PMA_HOST_API: db-api-service  # Ne dois pas changé
+  # PMA_USER_API: user_api
+  # PMA_PASSWORD_API: password_api
+
+
+  # client
+  VITE_API_URL: /api/

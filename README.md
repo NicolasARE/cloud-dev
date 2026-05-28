@@ -74,7 +74,7 @@ docker compose up -d --build
 ### URL
 
 - client: http://localhost
-- auth: http://localhost/api/auth/greeting
+- auth: http://localhost/auth/greeting
 - api: http://localhost/api/greeting
 - phpMyAdmin: http://db.localhost
 
