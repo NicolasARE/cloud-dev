@@ -17,6 +17,7 @@ spec:
       containers:
         - name: client-deployment
           image: projet_exercice-client:latest
+          imagePullPolicy: IfNotPresent
 
           ports:
             - containerPort: 80
