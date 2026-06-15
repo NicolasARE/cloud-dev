@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+Dockerfile
+dist
+build
+public
+tests
+spec
+etc
