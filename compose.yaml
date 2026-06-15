@@ -222,7 +222,7 @@ services:
       - todo-grafana-data:/var/lib/grafana
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-      - ./grafana.json:/etc/grafana/dashboards/grafana.json
+      - ./grafana/grafana.json:/etc/grafana/dashboards/grafana.json
     depends_on:
       - prometheus
     labels:

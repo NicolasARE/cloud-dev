@@ -21,6 +21,7 @@ spec:
       containers:
         - name: auth-deployment
           image: projet_exercice-auth:latest
+          imagePullPolicy: IfNotPresent
 
           ports:
             - containerPort: 3001
