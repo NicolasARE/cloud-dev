@@ -122,6 +122,4 @@ Ayant 2 base de données, pour vous connecter, utiliser les variables `PMA_HOST_
 
 ## Outils de monitoring
 
-- Prometheus (Métriques) : accessible sur http://prometheus.localhost
-- Grafana (Dashboards & Logs Loki) : accessible sur http://grafana.localhost (admin/admin)
-- Jaeger (Traces) : accessible sur http://jaeger.localhost
+Voir le fichier [monitoring.md](https://github.com/NicolasARE/cloud-dev/blob/main/monitoring.md)
