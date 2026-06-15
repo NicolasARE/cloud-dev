@@ -169,7 +169,8 @@ services:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 15
+      start_period: 30s
 
   mysql_api:
     image: mysql:9.3
@@ -184,7 +185,8 @@ services:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 15
+      start_period: 30s
 
   ###################################################
   # Service: phpmyadmin

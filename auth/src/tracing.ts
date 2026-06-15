@@ -6,7 +6,7 @@ import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
 const sdk = new NodeSDK({
   resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: 'todo-backend',
+    [SemanticResourceAttributes.SERVICE_NAME]: 'todo-auth',
   }),
   traceExporter: new OTLPTraceExporter({
     url: 'http://jaeger:4318/v1/traces',

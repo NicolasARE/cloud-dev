@@ -5,6 +5,9 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
+import { faPen } from '@fortawesome/free-solid-svg-icons/faPen';
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons/faCheckSquare';
 import { faSquare } from '@fortawesome/free-regular-svg-icons/faSquare';
 
@@ -29,6 +32,7 @@ export function ItemDisplay({
 }: ItemDisplayProps) {
     const [name, setName] = useState(item.name);
     const [isDirty, setIsDirty] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const { notify } = useNotification();
 
@@ -55,6 +59,18 @@ export function ItemDisplay({
         }
     };
 
+    const handleConfirm = async () => {
+        if (!name.trim()) return;
+        await update();
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setName(item.name);
+        setIsDirty(false);
+        setIsEditing(false);
+    };
+
     const removeItem = async () => {
         try {
             await deleteItem(item.id);
@@ -74,7 +90,7 @@ export function ItemDisplay({
 
     return (
         <Container fluid className={`item ${item.completed && 'completed'}`}>
-            <Row>
+            <Row className="align-items-center">
                 <Col xs={2} className="text-center">
                     <Button
                         size="sm"
@@ -88,7 +104,7 @@ export function ItemDisplay({
                     </Button>
                 </Col>
 
-                <Col xs={8}>
+                <Col xs={6}>
                     <input
                         type="text"
                         value={name}
@@ -98,29 +114,68 @@ export function ItemDisplay({
                         }}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
-                                e.currentTarget.blur();
-                                update();
+                                handleConfirm();
+                            } else if (e.key === 'Escape') {
+                                handleCancel();
                             }
                         }}
-                        onBlur={() => {
-                            setIsDirty(name !== item.name);
-                        }}
-                        className={`form-control ${isDirty ? 'dirty-input' : ''} ${!name ? 'empty-input' : ''}`}
+                        readOnly={!isEditing}
+                        className={`form-control ${isEditing ? '' : 'form-control-plaintext'} ${isDirty ? 'dirty-input' : ''} ${!name ? 'empty-input' : ''}`}
+                        style={isEditing ? {} : { border: 'none', background: 'transparent', boxShadow: 'none', paddingLeft: '0', pointerEvents: 'none' }}
+                        autoFocus={isEditing}
                     />
                 </Col>
 
-                <Col xs={2} className="text-center remove">
-                    <Button
-                        size="sm"
-                        variant="link"
-                        onClick={removeItem}
-                        aria-label="Remove Item"
-                    >
-                        <FontAwesomeIcon
-                            icon={faTrash}
-                            className="text-danger"
-                        />
-                    </Button>
+                <Col xs={4} className="text-center remove d-flex justify-content-center align-items-center">
+                    {isEditing ? (
+                        <>
+                            <Button
+                                size="sm"
+                                variant="success"
+                                className="me-2 d-flex align-items-center"
+                                onClick={handleConfirm}
+                                disabled={!name}
+                                aria-label="Confirm Edit"
+                            >
+                                <FontAwesomeIcon icon={faCheck} className="me-1" /> OK
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                className="d-flex align-items-center"
+                                onClick={handleCancel}
+                                aria-label="Cancel Edit"
+                            >
+                                <FontAwesomeIcon icon={faTimes} />
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                size="sm"
+                                variant="link"
+                                className="me-2"
+                                onClick={() => setIsEditing(true)}
+                                aria-label="Edit Item"
+                            >
+                                <FontAwesomeIcon
+                                    icon={faPen}
+                                    className="text-primary"
+                                />
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="link"
+                                onClick={removeItem}
+                                aria-label="Remove Item"
+                            >
+                                <FontAwesomeIcon
+                                    icon={faTrash}
+                                    className="text-danger"
+                                />
+                            </Button>
+                        </>
+                    )}
                 </Col>
             </Row>
         </Container>
