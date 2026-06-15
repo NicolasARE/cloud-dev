@@ -12,6 +12,10 @@ spec:
     metadata:
       labels:
         app: auth-deployment
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/auth/metrics"
+        prometheus.io/port: "3001"
     spec:
       automountServiceAccountToken: false
       containers:

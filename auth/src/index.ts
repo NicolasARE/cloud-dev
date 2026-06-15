@@ -49,7 +49,7 @@ app.use((req, res, next) => {
 });
 
 // Metrics endpoint
-app.get('/metrics', async (req, res) => {
+app.get('/auth/metrics', async (req, res) => {
     res.set('Content-Type', metricsRegistry.contentType);
     res.end(await metricsRegistry.metrics());
 });
