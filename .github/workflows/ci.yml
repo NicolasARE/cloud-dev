@@ -12,16 +12,18 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+
     outputs:
       client: ${{ steps.filter.outputs.client }}
       backend: ${{ steps.filter.outputs.backend }}
       auth: ${{ steps.filter.outputs.auth }}
+      pipeline: ${{ steps.filter.outputs.pipeline }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-        
+
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -32,11 +34,16 @@ jobs:
               - 'backend/**'
             auth:
               - 'auth/**'
+            pipeline:
+              - '.github/workflows/**'
           token: ${{ secrets.GITHUB_TOKEN }}
+
 
   client:
     needs: changes
-    if: needs.changes.outputs.client == 'true'
+    if: |
+      needs.changes.outputs.client == 'true' ||
+      needs.changes.outputs.pipeline == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -78,7 +85,9 @@ jobs:
 
   backend:
     needs: changes
-    if: needs.changes.outputs.backend == 'true'
+    if: |
+      needs.changes.outputs.backend == 'true' ||
+      needs.changes.outputs.pipeline == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -110,7 +119,9 @@ jobs:
 
   auth:
     needs: changes
-    if: needs.changes.outputs.auth == 'true'
+    if: |
+        needs.changes.outputs.auth == 'true' ||
+        needs.changes.outputs.pipeline == 'true'
     runs-on: ubuntu-latest
 
     steps:
