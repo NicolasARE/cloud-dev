@@ -154,17 +154,21 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name : Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & push client
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./client
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ghcr.io/nicolasare/cloud-dev/client:${{ github.sha }}
@@ -184,17 +188,21 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name : Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & push backend
-        uses: docker/build-push-action@v5
+      - name: Build & push client
+        uses: docker/build-push-action@v7
         with:
-          context: ./backend
+          context: ./client
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ghcr.io/nicolasare/cloud-dev/backend:${{ github.sha }}
@@ -214,17 +222,21 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name : Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & push auth
-        uses: docker/build-push-action@v5
+      - name: Build & push client
+        uses: docker/build-push-action@v7
         with:
-          context: ./auth
+          context: ./client
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ghcr.io/nicolasare/cloud-dev/auth:${{ github.sha }}
