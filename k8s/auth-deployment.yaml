@@ -20,8 +20,8 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: auth-deployment
-          image: projet_exercice-auth:latest
-          imagePullPolicy: IfNotPresent
+          image: nicoareregistrytodoapp.azurecr.io/auth:latest
+          imagePullPolicy: Always
 
           ports:
             - containerPort: 3001
@@ -57,11 +57,18 @@ spec:
                   name: todo-config
                   key: MYSQL_DB_AUTH
 
+            - name: MYSQL_SSL
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-config
+                  key: MYSQL_SSL
+                  optional: true
+
           # resources: {}
           resources:
             requests:
               memory: "128Mi"
-              cpu: "100m"
+              cpu: "10m"
               ephemeral-storage: "512Mi"
             limits:
               memory: "256Mi"

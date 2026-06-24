@@ -154,21 +154,28 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Log in to GHCR
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: nicoareregistrytodoapp.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build & push client
         uses: docker/build-push-action@v5
         with:
           context: ./client
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/nicolasare/cloud-dev/client:${{ github.sha }}
-            ghcr.io/nicolasare/cloud-dev/client:latest
+            nicoareregistrytodoapp.azurecr.io/client:${{ github.sha }}
+            nicoareregistrytodoapp.azurecr.io/client:latest
 
   docker-backend:
     runs-on: ubuntu-latest
@@ -184,21 +191,28 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Log in to GHCR
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: nicoareregistrytodoapp.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build & push backend
         uses: docker/build-push-action@v5
         with:
           context: ./backend
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/nicolasare/cloud-dev/backend:${{ github.sha }}
-            ghcr.io/nicolasare/cloud-dev/backend:latest
+            nicoareregistrytodoapp.azurecr.io/backend:${{ github.sha }}
+            nicoareregistrytodoapp.azurecr.io/backend:latest
 
   docker-auth:
     runs-on: ubuntu-latest
@@ -214,18 +228,25 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Log in to GHCR
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: nicoareregistrytodoapp.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build & push auth
         uses: docker/build-push-action@v5
         with:
           context: ./auth
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/nicolasare/cloud-dev/auth:${{ github.sha }}
-            ghcr.io/nicolasare/cloud-dev/auth:latest
+            nicoareregistrytodoapp.azurecr.io/auth:${{ github.sha }}
+            nicoareregistrytodoapp.azurecr.io/auth:latest

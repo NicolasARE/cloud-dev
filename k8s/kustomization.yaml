@@ -6,13 +6,6 @@ resources:
   - kafka-configmap.yaml
   - nginx-configmap.yaml
 
-  - db-api-pvc.yaml
-  - db-api-deployment.yaml
-  - db-api-service.yaml
-
-  - db-auth-pvc.yaml
-  - db-auth-deployment.yaml
-  - db-auth-service.yaml
 
   - api-deployment.yaml
   - api-autoscale.yaml

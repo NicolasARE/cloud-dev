@@ -1,8 +1,9 @@
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     const token = localStorage.getItem('token');    
-    const baseUrl = import.meta.env.VITE_API_URL;
+    const baseUrl = import.meta.env.VITE_API_URL || '';
+    const url = `${baseUrl}${path}`.replace(/(?<!:)\/+/g, '/');
     
-    const res = await fetch(`${baseUrl}${path}`, {
+    const res = await fetch(url, {
         headers: {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
