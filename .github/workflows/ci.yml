@@ -12,16 +12,18 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+
     outputs:
       client: ${{ steps.filter.outputs.client }}
       backend: ${{ steps.filter.outputs.backend }}
       auth: ${{ steps.filter.outputs.auth }}
+      pipeline: ${{ steps.filter.outputs.pipeline }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-        
+
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -32,11 +34,16 @@ jobs:
               - 'backend/**'
             auth:
               - 'auth/**'
+            pipeline:
+              - '.github/workflows/**'
           token: ${{ secrets.GITHUB_TOKEN }}
+
 
   client:
     needs: changes
-    if: needs.changes.outputs.client == 'true'
+    if: |
+      needs.changes.outputs.client == 'true' ||
+      needs.changes.outputs.pipeline == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -78,7 +85,9 @@ jobs:
 
   backend:
     needs: changes
-    if: needs.changes.outputs.backend == 'true'
+    if: |
+      needs.changes.outputs.backend == 'true' ||
+      needs.changes.outputs.pipeline == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -110,7 +119,9 @@ jobs:
 
   auth:
     needs: changes
-    if: needs.changes.outputs.auth == 'true'
+    if: |
+        needs.changes.outputs.auth == 'true' ||
+        needs.changes.outputs.pipeline == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -153,22 +164,18 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      - name : Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Azure Container Registry
-        uses: docker/login-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
         with:
           registry: nicoareregistrytodoapp.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build & push client
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./client
           platforms: linux/amd64,linux/arm64
@@ -190,22 +197,18 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      - name : Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Azure Container Registry
-        uses: docker/login-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
         with:
           registry: nicoareregistrytodoapp.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build & push backend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./backend
           platforms: linux/amd64,linux/arm64
@@ -227,22 +230,18 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      - name : Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Azure Container Registry
-        uses: docker/login-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
         with:
           registry: nicoareregistrytodoapp.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build & push auth
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./auth
           platforms: linux/amd64,linux/arm64
