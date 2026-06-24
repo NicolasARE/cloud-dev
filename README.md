@@ -172,6 +172,20 @@ terraform apply "main.tfplan"
 
 > ⏱️ Le déploiement complet prend environ **10–15 minutes** (AKS et MySQL sont les plus longs).
 
+### CI/CD — Pipeline de build Docker
+
+La CI/CD (`.github/workflows/ci.yml`) build et push automatiquement les images Docker vers l'ACR à chaque merge sur `main`.
+
+Pour configurer la CI/CD sur un nouveau fork ou dépôt, ajouter dans **GitHub → Settings → Secrets and variables → Actions** :
+
+| Secret | Valeur |
+|---|---|
+| `ACR_USERNAME` | `nicoareregistrytodoapp` |
+| `ACR_PASSWORD` | *(via `az acr credential show --name nicoareregistrytodoapp`)* |
+
+> **Note :** L'application est déjà déployée et accessible — cette étape n'est nécessaire qu'en cas de re-déploiement complet sur un nouveau dépôt.
+
+
 ### Se connecter au cluster AKS
 
 ```bash
@@ -188,6 +202,21 @@ kubectl get nodes
 ```bash
 kubectl apply -k k8s/
 ```
+
+### Déployer le monitoring (Prometheus + Grafana)
+
+```bash
+kubectl apply -k k8s/monitoring/
+```
+
+Accéder à Grafana (via port-forward) :
+```bash
+kubectl port-forward svc/grafana 3000:3000 -n monitoring
+# Ouvrir http://localhost:3000 (admin / admin)
+```
+
+> Le monitoring Prometheus/Grafana tourne **dans AKS** — c'est du monitoring cloud, pas local.
+> Azure Log Analytics est également actif nativement sur le cluster (déployé par Terraform).
 
 ### Détruire l'infrastructure
 

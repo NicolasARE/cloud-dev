@@ -404,10 +404,9 @@ metadata:
   name: grafana
   namespace: monitoring
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
     - port: 3000
       targetPort: 3000
-      nodePort: 30300
   selector:
     app: grafana
