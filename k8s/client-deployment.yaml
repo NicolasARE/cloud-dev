@@ -5,6 +5,8 @@ metadata:
   namespace: todo-app
 spec:
   replicas: 2
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: client-deployment
@@ -33,7 +35,7 @@ spec:
           resources:
             requests:
               memory: "64Mi"
-              cpu: "10m"
+              cpu: "50m"
               ephemeral-storage: "256Mi"
             limits:
               memory: "128Mi"
