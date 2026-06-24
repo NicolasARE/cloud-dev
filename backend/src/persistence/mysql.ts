@@ -14,6 +14,7 @@ const {
     MYSQL_PASSWORD_FILE: PASSWORD_FILE,
     MYSQL_DB: DB,
     MYSQL_DB_FILE: DB_FILE,
+    MYSQL_SSL: SSL_ENV,
 } = process.env;
 
 let pool: Pool;
@@ -46,6 +47,8 @@ async function init(): Promise<void> {
         waitForDns: true,
     });
 
+    const ssl = SSL_ENV === 'true' ? { rejectUnauthorized: false } : undefined;
+
     pool = mysql.createPool({
         connectionLimit: 5,
         host,
@@ -53,6 +56,7 @@ async function init(): Promise<void> {
         password,
         database,
         charset: 'utf8mb4',
+        ssl,
     });
 
     return new Promise((resolve, reject) => {

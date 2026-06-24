@@ -5,11 +5,12 @@ metadata:
   namespace: todo-app
 data:
   # backend
-  MYSQL_HOST_API: db-api-service
+  MYSQL_HOST_API: todoapp-flex.mysql.database.azure.com
   MYSQL_DB_API: db_api
+  MYSQL_SSL: "true"
 
   # auth
-  MYSQL_HOST_AUTH: db-auth-service
+  MYSQL_HOST_AUTH: todoapp-flex.mysql.database.azure.com
   MYSQL_DB_AUTH: db_auth
 
   # phpmyadmin

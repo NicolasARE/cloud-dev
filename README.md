@@ -123,3 +123,76 @@ Ayant 2 base de données, pour vous connecter, utiliser les variables `PMA_HOST_
 ## Outils de monitoring
 
 Voir le fichier [monitoring.md](https://github.com/NicolasARE/cloud-dev/blob/main/monitoring.md)
+
+---
+
+## ☁️ Déploiement Azure (Terraform)
+
+L'infrastructure cloud est entièrement gérée par Terraform dans le dossier [`azure/`](./azure/).
+
+### Infrastructure déployée
+
+| Ressource | Nom | Description |
+|---|---|---|
+| Resource Group | `rg-todo-app-dev` | Conteneur de toutes les ressources |
+| Container Registry (ACR) | `nicoareregistrytodoapp` | Stockage des images Docker |
+| Kubernetes Service (AKS) | `aks-todo-app-dev` | Cluster pour les manifests k8s |
+| MySQL Flexible Server | `todoapp-flex` | BDD API (`db_api`) et Auth (`db_auth`) |
+| Key Vault | `kv-todoapp-[auto]` | Stockage sécurisé des secrets (suffixe aléatoire pour unicité globale) |
+| Log Analytics Workspace | `law-todo-app-dev` | Monitoring du cluster AKS |
+
+### Prérequis
+
+- [Terraform](https://developer.hashicorp.com/terraform/install) ≥ 1.0
+- [Azure CLI](https://learn.microsoft.com/fr-fr/cli/azure/install-azure-cli) installé et connecté
+
+```bash
+az login
+az account set --subscription d921f310-a568-43b6-95a7-a16745b6f13f
+```
+
+### Déployer l'infrastructure
+
+```bash
+cd azure
+
+# 1. Copier et renseigner les variables
+cp terraform.tfvars.example terraform.tfvars
+# Éditez terraform.tfvars et renseignez mysql_admin_password
+
+# 2. Initialiser Terraform
+terraform init
+
+# 3. Vérifier le plan
+terraform plan -out main.tfplan
+
+# 4. Appliquer
+terraform apply "main.tfplan"
+```
+
+> ⏱️ Le déploiement complet prend environ **10–15 minutes** (AKS et MySQL sont les plus longs).
+
+### Se connecter au cluster AKS
+
+```bash
+az aks get-credentials \
+  --resource-group rg-todo-app-dev \
+  --name aks-todo-app-dev
+
+# Vérifier la connexion
+kubectl get nodes
+```
+
+### Déployer l'application sur AKS
+
+```bash
+kubectl apply -k k8s/
+```
+
+### Détruire l'infrastructure
+
+```bash
+terraform destroy
+```
+
+> ⚠️ **Ne jamais commiter** `terraform.tfvars`, `*.tfstate`, `*.tfplan` ou `.terraform/` — ces fichiers sont dans le `.gitignore`.

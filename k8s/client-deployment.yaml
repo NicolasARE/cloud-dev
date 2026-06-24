@@ -16,8 +16,8 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: client-deployment
-          image: projet_exercice-client:latest
-          imagePullPolicy: IfNotPresent
+          image: nicoareregistrytodoapp.azurecr.io/client:latest
+          imagePullPolicy: Always
 
           ports:
             - containerPort: 80
@@ -33,7 +33,7 @@ spec:
           resources:
             requests:
               memory: "64Mi"
-              cpu: "50m"
+              cpu: "10m"
               ephemeral-storage: "256Mi"
             limits:
               memory: "128Mi"

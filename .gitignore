@@ -131,3 +131,35 @@ dist
 
 
 etc/
+
+# ─────────────────────────────────────────────
+# Terraform
+# ─────────────────────────────────────────────
+
+# State files (contiennent des données sensibles en clair)
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Plans compilés (peuvent contenir des secrets)
+*.tfplan
+main.tfplan
+
+# Répertoire des providers téléchargés
+**/.terraform/
+.terraform.lock.hcl
+
+# Variables locales avec secrets (ne jamais commiter)
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Fichiers de crash Terraform
+crash.log
+crash.*.log
+
+# Override files (usage local uniquement)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
