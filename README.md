@@ -93,22 +93,30 @@ docker compose down
 
 ## Lancer les tests
 
-Avant tout, rendez-vous dans le dossier avec voulu (client, auth ou backend) en partant de la racine du projet.
+Avant tout, rendez-vous dans le dossier voulu (`client`, `auth` ou `backend`) en partant de la racine du projet.
 
 ### Tous les tests
-```
+```bash
 npm test
 ```
 
 ### Tests unitaires
-```
+```bash
 npm test units
 ```
 
-### Tests d'integrations
-```
+### Tests d'intégrations
+```bash
 npm test integrations
 ```
+
+### Couverture des tests (Coverage)
+Pour générer le rapport de couverture des tests, exécutez la commande suivante dans le dossier du service concerné :
+```bash
+npm test -- --coverage
+```
+Cette commande affiche un tableau récapitulatif dans le terminal (pourcentage de lignes, fonctions, branches et instructions couvertes) et génère un dossier `coverage/` contenant un rapport HTML interactif complet (ouvrez `coverage/lcov-report/index.html` dans un navigateur).
+
 
 
 ## phpMyAdmin
@@ -186,25 +194,34 @@ Pour configurer la CI/CD sur un nouveau fork ou dépôt, ajouter dans **GitHub �
 > **Note :** L'application est déjà déployée et accessible publiquement sur **[http://68.221.250.190](http://68.221.250.190)**. Cette étape de configuration des secrets n'est nécessaire qu'en cas de re-déploiement complet sur un nouveau dépôt.
 
 
-### Se connecter au cluster AKS
+### Se connecter et lancer le projet avec Kubernetes (AKS)
 
+Suivez ces étapes pour lier votre terminal à Azure et déployer vos ressources Kubernetes sur le cluster.
+
+#### 1. Se connecter à Azure et configurer l'abonnement
+```bash
+az login
+az account set --subscription d921f310-a568-43b6-95a7-a16745b6f13f
+```
+
+#### 2. Récupérer les identifiants de connexion du cluster AKS
+Cette commande configure votre client `kubectl` local pour lui donner accès au cluster distant :
 ```bash
 az aks get-credentials \
   --resource-group rg-todo-app-dev \
   --name aks-todo-app-dev
 
-# Vérifier la connexion
+# Vérifier la bonne connexion (doit lister vos nœuds de cluster)
 kubectl get nodes
 ```
 
-### Déployer l'application sur AKS
-
+#### 3. Déployer l'application sur le cluster AKS
+Cette commande déploie tous les microservices (client, api, auth, kafka) :
 ```bash
 kubectl apply -k k8s/
 ```
 
-### Déployer le monitoring (Prometheus + Grafana)
-
+#### 4. Déployer la supervision et le monitoring (Prometheus + Grafana)
 ```bash
 kubectl apply -k k8s/monitoring/
 ```
@@ -227,4 +244,4 @@ kubectl port-forward svc/grafana 3000:3000 -n monitoring
 terraform destroy
 ```
 
-> ⚠️ **Ne jamais commiter** `terraform.tfvars`, `*.tfstate`, `*.tfplan` ou `.terraform/` — ces fichiers sont dans le `.gitignore`.
+> **Ne jamais commiter** `terraform.tfvars`, `*.tfstate`, `*.tfplan` ou `.terraform/` — ces fichiers sont dans le `.gitignore`.
