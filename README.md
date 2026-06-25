@@ -244,4 +244,4 @@ kubectl port-forward svc/grafana 3000:3000 -n monitoring
 terraform destroy
 ```
 
-> ⚠️ **Ne jamais commiter** `terraform.tfvars`, `*.tfstate`, `*.tfplan` ou `.terraform/` — ces fichiers sont dans le `.gitignore`.
+> **Ne jamais commiter** `terraform.tfvars`, `*.tfstate`, `*.tfplan` ou `.terraform/` — ces fichiers sont dans le `.gitignore`.
